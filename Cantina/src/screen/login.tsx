@@ -50,7 +50,7 @@ export default function Login({ navigation }: any) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="bg-laranja-100 flex-1 p-8 items-center justify-center"
     >
-      <View className="items-center gap-4">
+      <View className="items-center w-full gap-4">
         <Text className="text-5xl font-bold text-white uppercase">Entrar</Text>
         <Input>
           <Input.Field
@@ -69,37 +69,32 @@ export default function Login({ navigation }: any) {
             secureTextEntry
           />
         </Input>
-
+        <View className="w-full items-start">
+          <TouchableOpacity activeOpacity={0.7}>
+            <Text className="text-white font-bold text-center  underline">
+              Esqueci minha senha
+            </Text>
+          </TouchableOpacity>
+        </View>
 
         {error && (
           <View>
             <Text>Email ou senha inválidos</Text>
           </View>
         )}
+      </View>
+
+      {email === "" || password === "" ? (
+        <View className="w-11/12 h-16 mt-8">
+          <Button title="Entrar" disabled />
         </View>
+      ) : (
+        <View className="w-11/12 h-16 mt-8">
+          <Button title="Entrar" onPress={LoginUser} />
+        </View>
+      )}
 
-
-
-        {email === "" || password === "" ? (
-          <View className="w-11/12 h-16 mt-8">
-            <Button title="Entrar" disabled />
-          </View>
-        ) : (
-          <View className="w-11/12 h-16 mt-8">
-            <Button title="Entrar" onPress={LoginUser} />
-          </View>
-        )}
-
-
-
-        <TouchableOpacity activeOpacity={0.7}>
-          <Text className="text-white font-bold text-center underline">
-            Esqueci minha senha
-          </Text>
-        </TouchableOpacity>
-      
-
-      <View className="flex-row">
+      <View className="flex-row mt-8">
         <Text className="text-white">Não Tem Uma Conta?</Text>
         <TouchableOpacity onPress={() => navigation.navigate("Register")}>
           <Text className="text-white font-medium"> Criar Agora</Text>

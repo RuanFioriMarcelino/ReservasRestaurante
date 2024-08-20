@@ -5,11 +5,11 @@ import { colors } from '../styles/colors';
 import { View } from 'react-native';
 
 import Home from '../screen/home';
-import Notification from '../screen/notification';
 import Drinks from '../screen/drinks';
 import Cart from '../screen/cart';
 import Register from '../screen/Register';
 import Login from '../screen/login';
+import Notification from '../screen/notification';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -19,8 +19,8 @@ export function MyStack() {
         <Stack.Navigator initialRouteName='Login'>
             <Stack.Screen name='Register' component={Register} options={{headerShown:false}}/>
             <Stack.Screen name='Login' component={Login} options={{headerShown:false}}/>
-            <Stack.Screen name='Notification' component={Notification}/>
             <Stack.Screen name='Home' component={MyTab} options={{headerShown:false}}/>
+            <Stack.Screen name='Notification' component={Notification} options={{headerShown: false}}/>
         </Stack.Navigator>
     );
 }

@@ -1,4 +1,4 @@
-import { View, Text, Alert, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, Alert, KeyboardAvoidingView, Platform, TouchableOpacity } from "react-native";
 import { Input } from "../components/input";
 import { Button } from "../components/button";
 
@@ -60,6 +60,12 @@ export default function Register({navigation}:any) {
         </Input>
       </View>
       <View className="w-11/12 mt-8"><Button title="Registrar" onPress={newUser}/></View>
+      <View className="flex-row mt-8">
+        <Text className="text-white">Já Possui Uma Conta?</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text className="text-white font-medium"> Entrar Agora</Text>
+        </TouchableOpacity>
+      </View>
     </KeyboardAvoidingView>
   );
 }
