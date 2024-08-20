@@ -1,13 +1,14 @@
 import React from "react";
 import { StatusBar} from 'expo-status-bar'
-import MyTab from "../routes";
+import { MyStack } from "../routes";
+import { SafeAreaView, View } from "react-native";
 
 
 export default function App(){
 return (
     <>
         <StatusBar style="light" />
-        <MyTab/>
+        <SafeAreaView className="flex-1 bg-laranja-100 pt-8"><MyStack/></SafeAreaView>
     </>
 )
 }
