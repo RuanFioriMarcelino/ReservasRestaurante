@@ -14,12 +14,13 @@ export default function AvatarBar() {
   return (
     <View className="w-full bg-laranja-100 h-24 rounded-b-3xl p-6 justify-center">
       <View className="flex-row items-center gap-4">
-        <View className="w-16 h-16 rounded-full bg-white" />
+        <View className="w-16 h-16 rounded-full bg-white " />
         <FlatList
           data={usuario}
           keyExtractor={(item) => item.toString()}
           renderItem={({ item }) => (
             <View>
+              ''
               <Text className="font-regular text-xl text-white">
                 Olá, {item.name}
               </Text>
