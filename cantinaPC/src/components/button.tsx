@@ -16,6 +16,7 @@ export function Button({
   onClick,
   ...rest
 }: Props) {
+  console.log(btnNumber);
   return (
     <>
       {isSelected ? (
