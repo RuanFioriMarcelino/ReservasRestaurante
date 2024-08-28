@@ -12,12 +12,19 @@ import {
   Wallet,
 } from "lucide-react";
 import AccountMenu from "../components/accountMenu";
+import { useNavigate } from "react-router-dom";
 
 export default function Drawer() {
   const [selectedButton, setSelectedButton] = useState<number | null>(1);
   useEffect(() => {
     console.log(selectedButton, "btn");
   }, [selectedButton]);
+  const navigate = useNavigate();
+
+  function sendRoute(a: number) {
+    setSelectedButton(a);
+    navigate("/list");
+  }
 
   return (
     <div className="flex w-screen">
@@ -27,12 +34,12 @@ export default function Drawer() {
           <p className="text-white uppercase">Doces e salgados</p>
           {selectedButton}
         </div>
-        <div className="grid gap-8  ">
+        <div className="grid gap-6  ">
           <Button
             title="Dashboard"
             btnNumber={1}
             isSelected={selectedButton === 1}
-            onClick={() => setSelectedButton(1)}
+            onClick={() => sendRoute(1)}
           >
             <House size={18} />
           </Button>
