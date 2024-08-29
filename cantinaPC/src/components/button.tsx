@@ -1,9 +1,11 @@
 import { ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 type Props = {
   title: string;
   children: ReactNode;
   btnNumber: number;
+  to: string;
   isSelected: boolean;
   onClick: () => void;
 };
@@ -14,6 +16,7 @@ export function Button({
   btnNumber,
   isSelected,
   onClick,
+  to,
   ...rest
 }: Props) {
   console.log(btnNumber);
@@ -31,16 +34,18 @@ export function Button({
           </div>
         </button>
       ) : (
-        <button {...rest} onClick={onClick}>
-          <div>
-            <div className="w-56 ml-7 py-3 flex">
-              <span className="text-gray-700 px-3">{children}</span>
-              <span className="text-gray-700 font-medium text-sm uppercase">
-                {title}
-              </span>
+        <Link to={to}>
+          <button {...rest} onClick={onClick}>
+            <div>
+              <div className="w-56 ml-7 py-3 flex">
+                <span className="text-gray-700 px-3">{children}</span>
+                <span className="text-gray-700 font-medium text-sm uppercase">
+                  {title}
+                </span>
+              </div>
             </div>
-          </div>
-        </button>
+          </button>
+        </Link>
       )}
     </>
   );
