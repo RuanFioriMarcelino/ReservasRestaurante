@@ -20,7 +20,6 @@ export default function AvatarBar() {
           keyExtractor={(item) => item.toString()}
           renderItem={({ item }) => (
             <View>
-              ''
               <Text className="font-regular text-xl text-white">
                 Olá, {item.name}
               </Text>
