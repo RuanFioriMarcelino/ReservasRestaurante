@@ -12,10 +12,6 @@ import {
 
 export default function Drawer() {
   const [selectedButton, setSelectedButton] = useState<number | null>(1);
-  useEffect(() => {
-    console.log(selectedButton, "btn");
-  }, [selectedButton]);
-
   function sendRoute(a: number) {
     setSelectedButton(a);
   }

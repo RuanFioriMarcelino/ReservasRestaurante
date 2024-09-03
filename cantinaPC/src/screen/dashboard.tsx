@@ -1,3 +1,5 @@
+import Card from "../components/cards";
+
 export function Dashboard() {
   return (
     <div>
@@ -5,6 +7,12 @@ export function Dashboard() {
       <p className="text-gray-300">
         Olá, Lucas. Bem Vindo ao Jô Pães Dashboard!
       </p>
+      <div className="my-6 flex  justify-between">
+        <Card />
+        <Card />
+        <Card />
+        <Card />
+      </div>
     </div>
   );
 }

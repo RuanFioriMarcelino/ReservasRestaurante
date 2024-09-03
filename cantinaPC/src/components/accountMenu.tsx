@@ -12,6 +12,8 @@ import PersonAdd from "@mui/icons-material/PersonAdd";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 
+import { useGetUser } from "./getUser";
+
 export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -21,11 +23,14 @@ export default function AccountMenu() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const usuario = useGetUser();
+  const user = usuario.map((item) => item.name);
+
   return (
     <React.Fragment>
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Typography sx={{ minWidth: 100 }}>Contact</Typography>
-        <Typography sx={{ minWidth: 100 }}>Olá Lucas</Typography>
+        <Typography sx={{ minWidth: 100 }}>Olá {user}</Typography>
         <Tooltip title="Account settings">
           <IconButton
             onClick={handleClick}
@@ -35,7 +40,9 @@ export default function AccountMenu() {
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
           >
-            <Avatar sx={{ width: 32, height: 32 }}>L</Avatar>
+            <Avatar sx={{ width: 32, height: 32 }}>
+              {user.toString().substr(0, 1)}
+            </Avatar>
           </IconButton>
         </Tooltip>
       </Box>
@@ -77,7 +84,7 @@ export default function AccountMenu() {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={handleClose}>
-          <Avatar /> Lucas
+          <Avatar /> {user}
         </MenuItem>
         <MenuItem onClick={handleClose}>
           <Avatar /> My account
