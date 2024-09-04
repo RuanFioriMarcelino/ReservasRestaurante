@@ -12,21 +12,21 @@ export function useGetUser() {
   const user = auth.currentUser;
 
   useEffect(() => {
-    /* if (!user) return; */
+    if (!user) return;
     const productCollection = collection(database, "user");
     const unsubscribe = onSnapshot(productCollection, (querySnapshot) => {
       const list: Usuario[] = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data() as Usuario;
-        //if (data.idUser === user.uid) {
-        list.push({ ...data, idUser: doc.id });
-        //}
+        if (data.idUser === user.uid) {
+          list.push({ ...data, idUser: doc.id });
+        }
       });
       setUsuario(list);
     });
 
     return () => unsubscribe();
   }, [user]);
-  console.log(usuario);
+
   return usuario;
 }

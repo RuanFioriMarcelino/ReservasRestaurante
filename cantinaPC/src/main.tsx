@@ -4,13 +4,15 @@ import "./styles/index.css";
 
 import { RouterApp } from "./routes";
 import { RouterProvider } from "react-router-dom";
-import { auth } from "./config/firebaseconfig";
+
 import { RouteAuth } from "./routes/authRoute";
+import { auth } from "./config/firebaseconfig";
 const user = auth.currentUser;
+const token = localStorage.getItem("IsLoged");
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    {!user ? (
+    {token ? (
       <RouterProvider router={RouterApp} />
     ) : (
       <RouterProvider router={RouteAuth} />

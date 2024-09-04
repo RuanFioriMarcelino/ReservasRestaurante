@@ -3,13 +3,14 @@ import { Button } from "../components/buttonLogin";
 import { Input } from "../components/inputLogin";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, onAuthStateChanged } from "../config/firebaseconfig";
-import { Navigate } from "react-router-dom";
 
 export default function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<boolean>();
+  const token = localStorage.getItem("IsLoged");
 
+  console.log("token: ", token);
   const LoginUser = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -17,7 +18,9 @@ export default function Signin() {
         email,
         password
       );
-      <Navigate to={"/"} />;
+      localStorage.setItem("IsLoged", "true");
+
+      window.location.replace("/");
 
       console.log(userCredential.user.uid);
     } catch (error) {

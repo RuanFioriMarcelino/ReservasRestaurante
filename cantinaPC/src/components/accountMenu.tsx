@@ -13,6 +13,7 @@ import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 
 import { useGetUser } from "./getUser";
+import { useNavigate } from "react-router-dom";
 
 export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -25,7 +26,12 @@ export default function AccountMenu() {
   };
   const usuario = useGetUser();
   const user = usuario.map((item) => item.name);
+  const navigate = useNavigate();
+  async function logout() {
+    await localStorage.removeItem("IsLoged");
 
+    window.location.replace("/signin");
+  }
   return (
     <React.Fragment>
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
@@ -102,12 +108,14 @@ export default function AccountMenu() {
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <ListItemIcon>
-            <Logout fontSize="small" />
-          </ListItemIcon>
-          Logout
-        </MenuItem>
+        <button className="flex-1 w-full" onClick={logout}>
+          <MenuItem onClick={handleClose}>
+            <ListItemIcon>
+              <Logout fontSize="small" />
+            </ListItemIcon>
+            Logout
+          </MenuItem>
+        </button>
       </Menu>
     </React.Fragment>
   );
