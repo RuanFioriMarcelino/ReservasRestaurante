@@ -1,62 +1,57 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "../components/buttonLogin";
-import { Input } from "../components/inputLogin";
+import { Input } from "../components/input";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, onAuthStateChanged } from "../config/firebaseconfig";
+import { auth } from "../config/firebaseconfig";
+import UserProfile from "../components/getUser";
 
 export default function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<boolean>();
-  const token = localStorage.getItem("IsLoged");
 
-  console.log("token: ", token);
   const LoginUser = async () => {
     try {
       const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password
-      );
+      )
+        .then((userCredential) => {
+          // Usuário logado
+          const user = userCredential.user;
+          console.log("Usuário logado:", user);
+        })
+        .catch((error) => {
+          console.error("Erro ao logar:", error);
+        });
       localStorage.setItem("IsLoged", "true");
 
       window.location.replace("/");
 
-      console.log(userCredential.user.uid);
+      console.log("Credencial do cusuário: ", userCredential);
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       setError(true);
     }
   };
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-      }
-    });
-
-    return unsubscribe;
-  }, []);
-
   return (
     <div className="w-full h-screen items-center justify-center flex bg-black_">
       <div className="bg-slate-800 flex-col flex gap-8 text-center w-1/4 px-8 py-10 rounded-xl  shadow-slate-800 shadow-lg">
         <h1 className="text-white font-bold text-2xl">LOGIN</h1>
-        <Input>
+        <Input icon={null}>
           <Input.Field
             placeholder="E-MAIL"
             value={email}
             onChange={(e: any) => setEmail(e.target.value)}
-            keyboardType="email-address"
-            autoCapitalize="none"
           ></Input.Field>
         </Input>
-        <Input>
+        <Input icon={null}>
           <Input.Field
             placeholder="SENHA"
             value={password}
             onChange={(e: any) => setPassword(e.target.value)}
-            secureTextEntry
           ></Input.Field>
         </Input>
         {error ? (
@@ -68,6 +63,7 @@ export default function Signin() {
         )}
 
         <Button title="ENTRAR" onClick={LoginUser} />
+        <UserProfile />
       </div>
     </div>
   );

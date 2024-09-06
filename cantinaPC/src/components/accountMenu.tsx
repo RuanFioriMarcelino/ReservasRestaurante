@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import Box from "@mui/material/Box";
 import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
@@ -11,12 +11,12 @@ import Tooltip from "@mui/material/Tooltip";
 import PersonAdd from "@mui/icons-material/PersonAdd";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
-
-import { useGetUser } from "./getUser";
-import { useNavigate } from "react-router-dom";
+import { getAuth, signOut } from "firebase/auth";
+import UserProfile from "./getUser";
 
 export default function AccountMenu() {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
   const open = Boolean(anchorEl);
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -24,19 +24,30 @@ export default function AccountMenu() {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const usuario = useGetUser();
-  const user = usuario.map((item) => item.name);
-  const navigate = useNavigate();
+
   async function logout() {
     await localStorage.removeItem("IsLoged");
-
-    window.location.replace("/signin");
+    const auth = getAuth();
+    signOut(auth)
+      .then(() => {
+        console.log("Usuário desconectado!");
+        alert("Usuário deconectado!");
+        window.location.reload();
+      })
+      .catch((error) => {
+        error.console.error(error);
+      });
   }
+
+  const user = UserProfile()?.toString();
+
   return (
     <React.Fragment>
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Typography sx={{ minWidth: 100 }}>Contact</Typography>
-        <Typography sx={{ minWidth: 100 }}>Olá {user}</Typography>
+        <Typography sx={{ minWidth: 100, display: "flex", gap: 1 }}>
+          Olá <UserProfile />
+        </Typography>
         <Tooltip title="Account settings">
           <IconButton
             onClick={handleClick}
@@ -46,9 +57,7 @@ export default function AccountMenu() {
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
           >
-            <Avatar sx={{ width: 32, height: 32 }}>
-              {user.toString().substr(0, 1)}
-            </Avatar>
+            <Avatar sx={{ width: 32, height: 32 }}>{user.substr(0, 1)}</Avatar>
           </IconButton>
         </Tooltip>
       </Box>
@@ -90,7 +99,7 @@ export default function AccountMenu() {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={handleClose}>
-          <Avatar /> {user}
+          <Avatar /> <UserProfile />
         </MenuItem>
         <MenuItem onClick={handleClose}>
           <Avatar /> My account

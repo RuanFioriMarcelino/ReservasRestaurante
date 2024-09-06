@@ -5,6 +5,7 @@ import { Dashboard } from "../screen/dashboard";
 import { List } from "../screen/list";
 import Details from "../screen/details";
 import ErrorPage from "../screen/ErrorPage";
+import CreateFood from "../screen/createFood";
 
 export const RouterApp = createBrowserRouter([
   {
@@ -23,6 +24,10 @@ export const RouterApp = createBrowserRouter([
       {
         path: "/details",
         element: <Details />,
+      },
+      {
+        path: "/createFoods",
+        element: <CreateFood />,
       },
     ],
   },
