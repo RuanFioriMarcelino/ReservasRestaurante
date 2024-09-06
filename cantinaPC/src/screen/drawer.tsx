@@ -36,8 +36,8 @@ export default function Drawer() {
           title="Lista de Pedidos"
           btnNumber={2}
           isSelected={selectedButton === 2}
-          onClick={() => setSelectedButton(2)}
-          to="/list"
+          onClick={() => sendRoute(2)}
+          to="list"
         >
           <AlignLeft size={18} />
         </Button>
@@ -45,8 +45,8 @@ export default function Drawer() {
           title="Detalhe dos Pedidos"
           btnNumber={3}
           isSelected={selectedButton === 3}
-          onClick={() => setSelectedButton(3)}
-          to="/details"
+          onClick={() => sendRoute(3)}
+          to="details"
         >
           <StickyNote size={18} />
         </Button>
@@ -54,8 +54,8 @@ export default function Drawer() {
           title="Cliente"
           btnNumber={4}
           isSelected={selectedButton === 4}
-          onClick={() => setSelectedButton(4)}
-          to="/client"
+          onClick={() => sendRoute(4)}
+          to="client"
         >
           <Users size={18} />
         </Button>
@@ -63,8 +63,8 @@ export default function Drawer() {
           title="Comidas"
           btnNumber={5}
           isSelected={selectedButton === 5}
-          onClick={() => setSelectedButton(5)}
-          to="/foods"
+          onClick={() => sendRoute(5)}
+          to="foods"
         >
           <Coffee size={18} />
         </Button>
@@ -72,8 +72,8 @@ export default function Drawer() {
           title="Carteira"
           btnNumber={6}
           isSelected={selectedButton === 6}
-          onClick={() => setSelectedButton(6)}
-          to="/wallet"
+          onClick={() => sendRoute(6)}
+          to="wallet"
         >
           <Wallet size={18} />
         </Button>

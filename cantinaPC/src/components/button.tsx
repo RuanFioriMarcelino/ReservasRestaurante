@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 type Props = {
   title: string;
@@ -19,6 +19,8 @@ export function Button({
   to,
   ...rest
 }: Props) {
+  const route = useLocation();
+  console.log("Rota: ", route.pathname);
   return (
     <>
       {isSelected ? (

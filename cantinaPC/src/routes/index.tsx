@@ -6,6 +6,7 @@ import { List } from "../screen/list";
 import Details from "../screen/details";
 import ErrorPage from "../screen/ErrorPage";
 import CreateFood from "../screen/createFood";
+import Foods from "../screen/foods";
 
 export const RouterApp = createBrowserRouter([
   {
@@ -18,15 +19,23 @@ export const RouterApp = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "/list",
+        path: "list",
         element: <List />,
       },
       {
-        path: "/details",
+        path: "details",
         element: <Details />,
       },
       {
-        path: "/createFoods",
+        path: "client",
+        element: <Details />,
+      },
+      {
+        path: "foods",
+        element: <Foods />,
+      },
+      {
+        path: "foods/createFoods",
         element: <CreateFood />,
       },
     ],
