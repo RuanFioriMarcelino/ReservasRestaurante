@@ -5,7 +5,7 @@ import { Dashboard } from "../screen/dashboard";
 import { List } from "../screen/list";
 import Details from "../screen/details";
 import ErrorPage from "../screen/ErrorPage";
-import CreateFood from "../screen/createFood";
+
 import Foods from "../screen/foods";
 
 export const RouterApp = createBrowserRouter([
@@ -16,6 +16,10 @@ export const RouterApp = createBrowserRouter([
     children: [
       {
         path: "/",
+        element: <Dashboard />,
+      },
+      {
+        path: "/dashboardx",
         element: <Dashboard />,
       },
       {
@@ -33,10 +37,6 @@ export const RouterApp = createBrowserRouter([
       {
         path: "foods",
         element: <Foods />,
-      },
-      {
-        path: "foods/createFoods",
-        element: <CreateFood />,
       },
     ],
   },

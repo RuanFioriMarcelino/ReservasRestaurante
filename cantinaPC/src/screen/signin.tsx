@@ -26,7 +26,7 @@ export default function Signin() {
           console.error("Erro ao logar:", error);
         });
       localStorage.setItem("IsLoged", "true");
-
+      localStorage.setItem("button", "1");
       window.location.replace("/");
 
       console.log("Credencial do cusuário: ", userCredential);

@@ -11,9 +11,12 @@ import {
 } from "lucide-react";
 
 export default function Drawer() {
-  const [selectedButton, setSelectedButton] = useState<number | null>(1);
+  const button = Number(localStorage.getItem("button"));
+  const [selectedButton, setSelectedButton] = useState<number | null>(button);
+
   function sendRoute(a: number) {
     setSelectedButton(a);
+    localStorage.setItem("button", `${a}`);
   }
 
   return (
@@ -25,7 +28,6 @@ export default function Drawer() {
       <div className="grid gap-4 border-r-[1px] pr-2 h-full pt-10 border-gray-400 ">
         <Button
           title="Dashboard"
-          btnNumber={1}
           isSelected={selectedButton === 1}
           onClick={() => sendRoute(1)}
           to="/"
@@ -34,7 +36,6 @@ export default function Drawer() {
         </Button>
         <Button
           title="Lista de Pedidos"
-          btnNumber={2}
           isSelected={selectedButton === 2}
           onClick={() => sendRoute(2)}
           to="list"
@@ -43,7 +44,6 @@ export default function Drawer() {
         </Button>
         <Button
           title="Detalhe dos Pedidos"
-          btnNumber={3}
           isSelected={selectedButton === 3}
           onClick={() => sendRoute(3)}
           to="details"
@@ -52,7 +52,6 @@ export default function Drawer() {
         </Button>
         <Button
           title="Cliente"
-          btnNumber={4}
           isSelected={selectedButton === 4}
           onClick={() => sendRoute(4)}
           to="client"
@@ -61,7 +60,6 @@ export default function Drawer() {
         </Button>
         <Button
           title="Comidas"
-          btnNumber={5}
           isSelected={selectedButton === 5}
           onClick={() => sendRoute(5)}
           to="foods"
@@ -70,7 +68,6 @@ export default function Drawer() {
         </Button>
         <Button
           title="Carteira"
-          btnNumber={6}
           isSelected={selectedButton === 6}
           onClick={() => sendRoute(6)}
           to="wallet"

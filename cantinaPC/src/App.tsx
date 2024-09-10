@@ -8,9 +8,9 @@ function App() {
       <div className="bg-black_ h-screen ">
         <div className=" border-orange-300 flex">
           <Drawer />
-          <div className="w-full p-6">
+          <div className="w-full p-6 ">
             <NavBar />
-            <div className="pt-8">
+            <div className="pt-8  ">
               <Outlet />
             </div>
           </div>

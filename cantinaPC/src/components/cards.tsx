@@ -1,12 +1,11 @@
 import { MoveUp } from "lucide-react";
-import Icon from "../assets/Icon_Order.png";
 
-export default function Card() {
+import { ReactNode } from "react";
+
+export default function Card({ children }: { children: ReactNode }) {
   return (
     <div className="bg-white gap-6 w-min flex items-center justify-center py-4 px-9 rounded-lg">
-      <div className="w-20">
-        <img src={Icon} />
-      </div>
+      <div className="w-16">{children}</div>
 
       <span>
         <p className="text-3xl font-bold text-slate-700 ">75</p>

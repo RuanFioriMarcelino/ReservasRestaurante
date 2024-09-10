@@ -1,9 +1,13 @@
-import { Link } from "react-router-dom";
+import Card from "../components/cardFood";
+import BasicModal from "../modals/modalCreateFood";
 
 export default function Foods() {
   return (
-    <div>
-      <Link to={"/foods/createFoods"}>criar comida</Link>
+    <div className=" ">
+      <div className="">
+        <Card />
+      </div>
+      <BasicModal />
     </div>
   );
 }

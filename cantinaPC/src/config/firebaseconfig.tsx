@@ -12,7 +12,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { getStorage, getDownloadURL } from "firebase/storage";
+import { getStorage } from "firebase/storage";
 import "firebase/storage";
 
 const firebaseConfig = {

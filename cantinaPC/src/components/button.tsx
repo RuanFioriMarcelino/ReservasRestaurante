@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 type Props = {
   title: string;
   children: ReactNode;
-  btnNumber: number;
+
   to: string;
   isSelected: boolean;
   onClick: () => void;
@@ -13,7 +13,6 @@ type Props = {
 export function Button({
   title,
   children,
-  btnNumber,
   isSelected,
   onClick,
   to,

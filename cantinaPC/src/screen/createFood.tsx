@@ -82,7 +82,7 @@ function CreateFood() {
   };
 
   return (
-    <div className="flex">
+    <div className="flex justify-around">
       <form onSubmit={handleSubmit} className="w-1/2 gap-3 grid">
         <h1 className="text-yellow font-bold text-xl uppercase text-center mb-4">
           Cadastrar novo produto
@@ -118,14 +118,16 @@ function CreateFood() {
           onChange={handleImageChange}
           className="file:bg-white file:text-yellow fonte file:border-none file:w-full file:h-10 file:rounded-lg file:hover:bg-yellow file:hover:text-white file:font-bold file:transition-all file:ease-in file:duration-75 file:cursor-pointer"
         />
-        {!imgURL && <progress value={progress} max="100" />}
+        {!imgURL && <progress className="w-full " value={progress} max="100" />}
 
         <button type="submit" title="Cadastrar">
-          teste
+          GRAVAR
         </button>
       </form>
-      <div className="items-center justify-center flex ">
-        {imgURL && <img className="w-1/2" src={imgURL} alt="Imagem" />}
+      <div className="items-center justify-center flex-1 max-h-80 max-w-80 rounded-lg border-4 border-yellow">
+        {imgURL && (
+          <img className="w-full  rounded-sm " src={imgURL} alt="Imagem" />
+        )}
       </div>
     </div>
   );
