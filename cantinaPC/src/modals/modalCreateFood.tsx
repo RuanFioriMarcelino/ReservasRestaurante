@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 
 import Modal from "@mui/material/Modal";
 import CreateFood from "../screen/createFood";
-import { Button } from "../components/button";
 
 const style = {
   position: "absolute" as "absolute",

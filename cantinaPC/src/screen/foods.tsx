@@ -3,11 +3,11 @@ import BasicModal from "../modals/modalCreateFood";
 
 export default function Foods() {
   return (
-    <div className=" ">
-      <div className="">
-        <Card />
+    <div className=" flex-col min-h-[500px] ">
+      <Card />
+      <div className="p-11">
+        <BasicModal />
       </div>
-      <BasicModal />
     </div>
   );
 }

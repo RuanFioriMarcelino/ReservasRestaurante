@@ -1,11 +1,15 @@
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, deleteDoc, doc, onSnapshot } from "firebase/firestore";
 import { database } from "../config/firebaseconfig";
 import { useEffect, useState } from "react";
+import { Button } from "./buttonCard";
+import { Trash2 } from "lucide-react";
+import BasicModal from "../modals/modalUpdateFood";
 
 interface Foods {
   id: string;
   name: string;
   description: string;
+  genre: string;
   valor: string;
   imgURL: string;
 }
@@ -26,21 +30,49 @@ export default function Card() {
 
     return () => unsubscribe();
   }, []);
-  return (
-    <ul className="flex flex-wrap gap-8">
-      {foods.map((food) => (
-        <li key={food.id} className="basis-[250px] bg-white rounded-lg p-2  ">
-          <p className="font-bold">{food.name}</p>
-          <div className=" flex">
-            <div className="text-center font-bold">
-              <img src={food.imgURL} alt={food.name} className="w-16 h-16 " />
-              <p className="text-orange-600  ">R$ {food.valor}</p>
-            </div>
 
-            <p className="text-sm w-4/5 text-center   ">{food.description}</p>
+  function deleteFood(id: string) {
+    const taskdocref = doc(database, "foods", id);
+    deleteDoc(taskdocref);
+  }
+
+  return (
+    <div className="flex flex-wrap gap-6 justify-center  max-h-[450px] overflow-y-scroll ">
+      {foods.map((food) => (
+        <div
+          key={food.id}
+          className="basis-[550px] flex bg-white rounded-lg h-28  "
+        >
+          <img
+            src={food.imgURL}
+            alt={food.name}
+            className="h-full rounded-s-lg "
+          />
+          <div className="p-2 flex w-full justify-between">
+            <div className="">
+              <p className="font-bold">{food.name}</p>
+              <p className="text-sm w-4/5    ">{food.description}</p>
+              <p className="text-orange-600 font-medium text-xl ">
+                R$ {food.valor}
+              </p>
+            </div>
+            <div className="w-1/3 flex-col flex justify-between  ">
+              <Button
+                button
+                children={<Trash2 />}
+                onClick={() => deleteFood(food.id)}
+              />
+              <BasicModal
+                name={food.name}
+                description={food.description}
+                genre={food.genre}
+                value={food.valor}
+                imgURL={food.imgURL}
+              />
+            </div>
           </div>
-        </li>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }
