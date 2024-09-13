@@ -1,7 +1,6 @@
 import { Text, View } from "react-native";
 import AvatarBar from "../components/avatarBar";
 import * as React from "react";
-import { useRoute } from "@react-navigation/native";
 
 export default function Notification() {
   return (
