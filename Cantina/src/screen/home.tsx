@@ -1,5 +1,6 @@
 import {
   Image,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   Text,
@@ -8,7 +9,7 @@ import {
 } from "react-native";
 import AvatarBar from "../components/avatarBar";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { addDoc, collection, doc, onSnapshot } from "firebase/firestore";
 import { auth, database } from "../config/firebaseconfig";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -27,7 +28,15 @@ export default function Home() {
   const [foods, setFoods] = useState<Foods[]>([]);
   const date = new Date().getDate();
   const month = new Date().getMonth() + 1;
-  const user = auth.currentUser;
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+
   useEffect(() => {
     const productCollection = collection(database, "foods");
     onSnapshot(productCollection, (query) => {
@@ -48,9 +57,9 @@ export default function Home() {
       const dataCollection = collection(userDoc, "data");
 
       await addDoc(dataCollection, {
-        foodId: foodId, // id do alimento que está sendo adicionado
-        addedAt: new Date(), // data e hora que foi adicionado
-        quantity: 1, // quantidade inicial
+        foodId: foodId,
+        addedAt: new Date(),
+        quantity: 1,
       });
 
       console.log("Produto adicionado ao carrinho com sucesso!");
@@ -77,6 +86,9 @@ export default function Home() {
           paddingTop: 10,
           height: "100%",
         }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         {foods.map((food) => (
           <View

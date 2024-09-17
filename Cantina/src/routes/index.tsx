@@ -10,33 +10,42 @@ import Cart from "../screen/cart";
 import Register from "../screen/Register";
 import Login from "../screen/login";
 import Notification from "../screen/notification";
+import { auth } from "../config/firebaseconfig";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export function MyStack() {
+  const user = auth.currentUser;
   return (
-    <Stack.Navigator initialRouteName="Login">
-      <Stack.Screen
-        name="Register"
-        component={Register}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Login"
-        component={Login}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Home"
-        component={MyTab}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="Notification"
-        component={Notification}
-        options={{ headerShown: false }}
-      />
+    <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
+      {!user ? (
+        <>
+          <Stack.Screen
+            name="Register"
+            component={Register}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+          />
+        </>
+      ) : null}
+
+      <>
+        <Stack.Screen
+          name="Home"
+          component={MyTab}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Notification"
+          component={Notification}
+          options={{ headerShown: false }}
+        />
+      </>
     </Stack.Navigator>
   );
 }
@@ -51,31 +60,31 @@ export function MyTab() {
           borderTopRightRadius: 20,
           height: 80,
         },
+        tabBarLabelStyle: { fontSize: 14, color: colors.white },
+        tabBarIconStyle: { marginTop: 5 },
+        tabBarItemStyle: { paddingVertical: 5 },
       }}
     >
       <Tab.Screen
         options={{
           headerShown: false,
           title: "Início",
-          tabBarLabelStyle: { fontSize: 16, color: colors.white },
-          tabBarIcon: (tabInfo) => {
-            return (
-              <View
-                style={{
-                  paddingHorizontal: 14,
-                  paddingVertical: 6,
-                  borderRadius: 18,
-                  backgroundColor: tabInfo.focused
-                    ? colors.laranja[200]
-                    : colors.laranja[100],
-                }}
-              >
-                <Ionicons name="home" size={24} color={colors.white} />
-              </View>
-            );
-          },
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                borderRadius: 18,
+                backgroundColor: focused
+                  ? colors.laranja[200]
+                  : colors.laranja[100],
+              }}
+            >
+              <Ionicons name="home" size={24} color={colors.white} />
+            </View>
+          ),
         }}
-        name="home"
+        name="Home"
         component={Home}
       />
 
@@ -83,23 +92,20 @@ export function MyTab() {
         options={{
           headerShown: false,
           title: "Carrinho",
-          tabBarLabelStyle: { fontSize: 16, color: colors.white },
-          tabBarIcon: (tabInfo) => {
-            return (
-              <View
-                style={{
-                  paddingHorizontal: 14,
-                  paddingVertical: 6,
-                  borderRadius: 18,
-                  backgroundColor: tabInfo.focused
-                    ? colors.laranja[200]
-                    : colors.laranja[100],
-                }}
-              >
-                <Ionicons name="cart" size={24} color={colors.white} />
-              </View>
-            );
-          },
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                borderRadius: 18,
+                backgroundColor: focused
+                  ? colors.laranja[200]
+                  : colors.laranja[100],
+              }}
+            >
+              <Ionicons name="cart" size={24} color={colors.white} />
+            </View>
+          ),
         }}
         name="Cart"
         component={Cart}
@@ -109,29 +115,26 @@ export function MyTab() {
         options={{
           headerShown: false,
           title: "Bebidas",
-          tabBarLabelStyle: { fontSize: 16, color: colors.white },
-          tabBarIcon: (tabInfo) => {
-            return (
-              <View
-                style={{
-                  paddingHorizontal: 14,
-                  paddingVertical: 6,
-                  borderRadius: 18,
-                  backgroundColor: tabInfo.focused
-                    ? colors.laranja[200]
-                    : colors.laranja[100],
-                }}
-              >
-                <MaterialCommunityIcons
-                  name="cup"
-                  size={24}
-                  color={colors.white}
-                />
-              </View>
-            );
-          },
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                borderRadius: 18,
+                backgroundColor: focused
+                  ? colors.laranja[200]
+                  : colors.laranja[100],
+              }}
+            >
+              <MaterialCommunityIcons
+                name="cup"
+                size={24}
+                color={colors.white}
+              />
+            </View>
+          ),
         }}
-        name="Bebidas"
+        name="Drinks"
         component={Drinks}
       />
     </Tab.Navigator>
