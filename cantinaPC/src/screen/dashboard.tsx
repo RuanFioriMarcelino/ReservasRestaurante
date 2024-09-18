@@ -18,9 +18,9 @@ export function Dashboard() {
       </p>
       <div className="my-6 flex  justify-between">
         <Card children={<img src={Icon1} />} />
-        <Card children={<img src={Icon2} />} />
+        {/*   <Card children={<img src={Icon2} />} />
         <Card children={<img src={Icon3} />} />
-        <Card children={<img src={Icon4} />} />
+        <Card children={<img src={Icon4} />} /> */}
       </div>
     </div>
   );
