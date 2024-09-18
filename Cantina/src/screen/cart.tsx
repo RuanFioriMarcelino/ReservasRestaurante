@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import {
   Image,
   RefreshControl,
@@ -14,16 +14,18 @@ import {
   getDoc,
   doc,
   deleteDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { auth, database } from "../config/firebaseconfig";
 import AvatarBar from "../components/avatarBar";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
+import { Button } from "../components/button";
 
 interface ProductsCart {
   id: string;
   addedAt: string;
-  quantity: string;
+  quantity: number;
   foodId: string;
 }
 
@@ -34,11 +36,13 @@ interface Foods {
   valor: string;
   imgURL: string;
   order: number;
+  quantity: number;
   idCart: string;
 }
 
 export default function Cart() {
   const [productsCart, setProductsCart] = useState<ProductsCart[]>([]);
+
   const [foods, setFoods] = useState<Foods[]>([]);
   const user = auth.currentUser;
   const userUID = user?.uid.toString();
@@ -88,7 +92,12 @@ export default function Cart() {
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const data = docSnap.data() as Foods;
-          foodsList.push({ ...data, id: docSnap.id, idCart: item.id });
+          foodsList.push({
+            ...data,
+            id: docSnap.id,
+            idCart: item.id,
+            quantity: item.quantity,
+          });
         } else {
           console.log("Nenhum documento encontrado!");
         }
@@ -105,6 +114,15 @@ export default function Cart() {
     await deleteDoc(taskDocRef);
   }
 
+  const editTask = async (id: any, operation: any, quantity: any) => {
+    const tst = quantity + operation;
+    console.log(tst);
+    const taskdocRef = doc(database, "cart", `${userUID}`, "data", id);
+    await updateDoc(taskdocRef, {
+      quantity: tst,
+    });
+  };
+
   return (
     <SafeAreaView className="flex-1 w-screen">
       <AvatarBar />
@@ -116,7 +134,6 @@ export default function Cart() {
         contentContainerStyle={{
           gap: 15,
           padding: 10,
-          height: "100%",
         }}
         className="rounded-3xl"
         refreshControl={
@@ -160,7 +177,11 @@ export default function Cart() {
               </View>
               <View className="flex-row items-center">
                 <View className="items-center justify-center px-2">
-                  <TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() =>
+                      editTask(product.idCart, +1, product.quantity)
+                    }
+                  >
                     <View className="p-1 bg-laranja-200 rounded-full">
                       <MaterialIcons
                         name="add"
@@ -169,16 +190,32 @@ export default function Cart() {
                       />
                     </View>
                   </TouchableOpacity>
-                  <Text className="text-white">1</Text>
-                  <TouchableOpacity>
-                    <View className="p-1 bg-laranja-200 rounded-full">
-                      <MaterialIcons
-                        name="remove"
-                        size={20}
-                        color={colors.white}
-                      />
-                    </View>
-                  </TouchableOpacity>
+                  <Text className="text-white">{product.quantity}</Text>
+                  {product.quantity > 1 ? (
+                    <TouchableOpacity
+                      onPress={() =>
+                        editTask(product.idCart, -1, product.quantity)
+                      }
+                    >
+                      <View className="p-1 bg-laranja-200 rounded-full">
+                        <MaterialIcons
+                          name="remove"
+                          size={20}
+                          color={colors.white}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity activeOpacity={1}>
+                      <View className="p-1 bg-laranja-200 rounded-full">
+                        <MaterialIcons
+                          name="remove"
+                          size={20}
+                          color={colors.white}
+                        />
+                      </View>
+                    </TouchableOpacity>
+                  )}
                 </View>
                 <TouchableOpacity onPress={() => deleteProduto(product.idCart)}>
                   <View className="bg-laranja-200 h-full justify-center px-4 rounded-r-lg">
@@ -190,6 +227,16 @@ export default function Cart() {
           </View>
         ))}
       </ScrollView>
+      {productsCart.length === 0 ? null : (
+        <View className="p-3">
+          <Button
+            title="Formas de Pagamento"
+            disabled
+            bgcolor={colors.laranja[100]}
+            textColor={colors.white}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 }
