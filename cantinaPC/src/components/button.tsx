@@ -18,8 +18,6 @@ export function Button({
   to,
   ...rest
 }: Props) {
-  const route = useLocation();
-  console.log("Rota: ", route.pathname);
   return (
     <>
       {isSelected ? (

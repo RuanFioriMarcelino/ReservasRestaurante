@@ -6,8 +6,6 @@ import { RouterApp } from "./routes";
 import { RouterProvider } from "react-router-dom";
 
 import { RouteAuth } from "./routes/authRoute";
-import { auth } from "./config/firebaseconfig";
-const user = auth.currentUser;
 const token = localStorage.getItem("IsLoged");
 
 createRoot(document.getElementById("root")!).render(

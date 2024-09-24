@@ -30,7 +30,7 @@ const style = {
   p: 4,
 };
 
-export default function ModalCreateFood() {
+export default function ModalCreateDrinks() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -90,7 +90,7 @@ export default function ModalCreateFood() {
         value: value,
         genre: genre,
         imgURL: imgURL,
-        category: "food",
+        category: "drink",
       });
       handleClose();
       setProgress(0);
@@ -101,11 +101,10 @@ export default function ModalCreateFood() {
       console.error("Error adding product: ", error);
     }
   };
-
   return (
     <div>
       <button
-        className="text-white uppercase font-regular bg-yellow p-2 rounded-lg hover:bg-black_ hover:text-yellow transition-all duration-75 ease-in"
+        className="text-white uppercase font-regular bg-yellow p-2 rounded-lg hover:bg-white hover:text-yellow transition-all duration-75 ease-in"
         onClick={handleOpen}
       >
         Cadastrar
@@ -121,7 +120,7 @@ export default function ModalCreateFood() {
           <div className="flex justify-around">
             <form onSubmit={handleSubmit} className="w-1/2 gap-3 grid">
               <h1 className="text-yellow font-bold text-xl uppercase text-center mb-4">
-                Cadastrar nova comida
+                Cadastrar nova Bebida
               </h1>
               <Input icon={null}>
                 <Input.Field
@@ -156,9 +155,9 @@ export default function ModalCreateFood() {
                   }
                 >
                   <option value="">Selecione um gênero</option>
-                  <option value="almoco">Almoço</option>
-                  <option value="marmitex">Marmitex</option>
-                  <option value="bebida">Bebida</option>
+                  <option value="refrigerante">Refrigerante</option>
+                  <option value="agua">Água</option>
+                  <option value="suco">Suco</option>
                 </select>
               </Input>
 

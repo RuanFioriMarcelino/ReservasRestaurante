@@ -3,7 +3,6 @@ import { Input } from "./input";
 import { Search } from "lucide-react";
 
 export default function NavBar() {
-  console.log(Search);
   return (
     <div className="w-full  h-min ">
       <div className="h-min flex justify-between">

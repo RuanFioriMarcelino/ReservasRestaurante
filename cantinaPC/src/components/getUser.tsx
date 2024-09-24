@@ -42,7 +42,7 @@ const UserProfile = () => {
   }, []);
   return (
     <div>
-      <h1> {userName}</h1>
+      <p>{userName}</p>
     </div>
   );
 };

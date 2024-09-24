@@ -43,7 +43,7 @@ export default function BasicModal({
   const [nameEdit, setNameEdit] = useState(name);
   const [valueEdit, setValueEdit] = useState(value);
   const [descriptionEdit, setDescriptionEdit] = useState(description);
-  const [genreEdit, setGenreEdit] = useState(genre);
+  const [genreEdit, setGenreEdit] = useState<string>(genre);
   const [imgURLEdit, setImgURLEdit] = useState(imgURL);
   const [progress, setProgress] = useState(0);
 
@@ -71,29 +71,35 @@ export default function BasicModal({
               <Input icon={null}>
                 <Input.Field
                   placeholder="Nome"
-                  value={name}
-                  onChange={setNameEdit}
+                  value={nameEdit}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setNameEdit(e.target.value)
+                  }
                 />
               </Input>
               <Input icon={null}>
                 <Input.Field
                   placeholder="Descrição"
-                  value={description}
-                  onChange={setDescriptionEdit}
+                  value={descriptionEdit}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setDescriptionEdit(e.target.value)
+                  }
                 />
               </Input>
               <Input icon={null}>
                 <Input.Field
                   placeholder="Valor"
-                  value={value}
-                  onChange={setValueEdit}
+                  value={valueEdit}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setValueEdit(e.target.value)
+                  }
                 />
               </Input>
               <Input icon={null}>
                 <select
                   className="flex-1 cursor-pointer"
-                  value={genre}
-                  onChange={handleGenreChange}
+                  value={genreEdit}
+                  onChange={(e) => setGenreEdit(e.target.value)}
                 >
                   <option value="">Selecione um gênero</option>
                   <option value="almoco">Almoço</option>
