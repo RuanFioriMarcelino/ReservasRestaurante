@@ -10,7 +10,13 @@ import {
 import AvatarBar from "../components/avatarBar";
 
 import React, { useEffect, useState } from "react";
-import { addDoc, collection, doc, onSnapshot } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  onSnapshot,
+  setDoc,
+} from "firebase/firestore";
 import { auth, database } from "../config/firebaseconfig";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
@@ -22,13 +28,23 @@ interface Foods {
   genre: string;
   valor: string;
   imgURL: string;
+  cart: boolean;
+}
+
+interface ProductsCart {
+  id: string;
+  cart: boolean;
 }
 
 export default function Home() {
   const [foods, setFoods] = useState<Foods[]>([]);
+  const [productsCart, setProductsCart] = useState<ProductsCart[]>([]);
+
   const date = new Date().getDate();
   const month = new Date().getMonth() + 1;
   const [refreshing, setRefreshing] = React.useState(false);
+  const user = auth.currentUser;
+  const userUID = user?.uid.toString();
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -38,30 +54,54 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!userUID) return;
+    const productCartCollection = collection(
+      database,
+      "cart",
+      `${userUID}`,
+      "data"
+    );
+
+    const unsubscribeCart = onSnapshot(
+      productCartCollection,
+      (querySnapshotCart) => {
+        const list: ProductsCart[] = [];
+        querySnapshotCart.forEach((doc) => {
+          list.push({ ...doc.data(), id: doc.id } as ProductsCart);
+        });
+        setProductsCart(list);
+      }
+    );
+
+    return unsubscribeCart;
+  }, [userUID]);
+
+  useEffect(() => {
+    const idProduct = productsCart.map((item) => item.id);
     const productCollection = collection(database, "foods");
-    onSnapshot(productCollection, (query) => {
+    const unsubscribe = onSnapshot(productCollection, (query) => {
       const list: Foods[] = [];
       query.forEach((doc) => {
-        list.push({ ...doc.data(), id: doc.id } as Foods);
+        if (idProduct.includes(doc.id))
+          list.push({ ...doc.data(), id: doc.id } as Foods);
       });
       setFoods(list);
     });
-  }, []);
+    return () => unsubscribe();
+  }, [productsCart, database]);
 
   const addForCart = async (foodId: any) => {
     try {
       const user = auth.currentUser;
-
       if (!user) return;
+
       const userDoc = doc(database, "cart", user.uid);
       const dataCollection = collection(userDoc, "data");
-
-      await addDoc(dataCollection, {
-        foodId: foodId,
+      const foodDoc = doc(dataCollection, `${foodId}`);
+      await setDoc(foodDoc, {
         addedAt: new Date(),
         quantity: 1,
       });
-
       console.log("Produto adicionado ao carrinho com sucesso!");
     } catch (error) {
       console.error("Erro ao adicionar produto ao carrinho: ", error);
@@ -112,6 +152,7 @@ export default function Home() {
                 <Text className="text-xl font-bold text-laranja-200">
                   {food.name}
                 </Text>
+                ''
                 <Text className="font-light">{food.description}</Text>
                 <View className="flex flex-row gap-2 ">
                   <View className="bg-laranja-200 px-2 py-1 rounded-xl">

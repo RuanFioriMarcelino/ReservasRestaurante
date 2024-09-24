@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useId } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Image,
   RefreshControl,
@@ -42,20 +42,12 @@ interface Foods {
 
 export default function Cart() {
   const [productsCart, setProductsCart] = useState<ProductsCart[]>([]);
-
   const [foods, setFoods] = useState<Foods[]>([]);
   const user = auth.currentUser;
   const userUID = user?.uid.toString();
   const [refreshing, setRefreshing] = useState(false);
 
-  const onRefresh = React.useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
-
-  useEffect(() => {
+  const fetchProductsCart = useCallback(() => {
     if (!userUID) return;
 
     const productCartCollection = collection(
@@ -76,37 +68,49 @@ export default function Cart() {
       }
     );
 
-    return () => unsubscribeCart();
+    return unsubscribeCart;
   }, [userUID]);
 
-  useEffect(() => {
+  const fetchFoods = useCallback(async () => {
     if (productsCart.length === 0) {
       setFoods([]);
       return;
     }
 
-    const fetchFoods = async () => {
-      const foodsList: Foods[] = [];
-      for (const item of productsCart) {
-        const docRef = doc(database, "foods", item.foodId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data() as Foods;
-          foodsList.push({
-            ...data,
-            id: docSnap.id,
-            idCart: item.id,
-            quantity: item.quantity,
-          });
-        } else {
-          console.log("Nenhum documento encontrado!");
-        }
+    const foodsList: Foods[] = [];
+    for (const item of productsCart) {
+      const docRef = doc(database, "foods", item.id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data() as Foods;
+        foodsList.push({
+          ...data,
+          id: docSnap.id,
+          idCart: item.id,
+          quantity: item.quantity,
+        });
+      } else {
+        console.log("Nenhum documento encontrado!");
       }
-      setFoods(foodsList);
-    };
-
-    fetchFoods();
+    }
+    setFoods(foodsList);
   }, [productsCart]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    fetchProductsCart();
+    await fetchFoods();
+    setRefreshing(false);
+  }, [fetchProductsCart, fetchFoods]);
+
+  useEffect(() => {
+    const unsubscribeCart = fetchProductsCart();
+    return () => unsubscribeCart && unsubscribeCart();
+  }, [fetchProductsCart]);
+
+  useEffect(() => {
+    fetchFoods();
+  }, [productsCart, fetchFoods]);
 
   async function deleteProduto(id: string) {
     if (!userUID) return;
