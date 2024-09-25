@@ -12,6 +12,7 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { Input } from "../components/input";
+import ProgressBar from "../components/progressBar";
 
 const auth = getAuth();
 const database = getFirestore();
@@ -101,11 +102,12 @@ export default function ModalCreateFood() {
       console.error("Error adding product: ", error);
     }
   };
+  const testData = [{ bgcolor: "#6a1b9a", completed: progress }];
 
   return (
     <div>
       <button
-        className="text-white uppercase font-regular bg-yellow p-2 rounded-lg hover:bg-black_ hover:text-yellow transition-all duration-75 ease-in"
+        className="text-white uppercase font-regular bg-yellow p-2 rounded-lg hover:bg-black/50 transition-all duration-75 ease-in"
         onClick={handleOpen}
       >
         Cadastrar
@@ -168,22 +170,39 @@ export default function ModalCreateFood() {
                 onChange={handleImageChange}
                 className="file:bg-white file:text-yellow fonte file:border-none file:w-full file:h-10 file:rounded-lg file:hover:bg-yellow file:hover:text-white file:font-bold file:transition-all file:ease-in file:duration-75 file:cursor-pointer"
               />
-              {!imgURL && (
-                <progress className="w-full " value={progress} max="100" />
-              )}
 
-              <button type="submit" title="Cadastrar">
+              <button
+                type="submit"
+                title="Cadastrar"
+                className="bg-yellow py-2 rounded-lg font-bold text-white hover:scale-105 transition-all duration-75"
+              >
                 GRAVAR
               </button>
             </form>
-            <div className="items-center justify-center flex-1 max-h-80 max-w-80 rounded-lg border-4 border-yellow">
-              {imgURL && (
-                <img
-                  className="w-full  rounded-sm "
-                  src={imgURL}
-                  alt="Imagem"
-                />
-              )}
+            <div className="gap-4 h-full flex flex-col">
+              <div className="w-80 max-h-80 min-h-52 flex rounded-lg border-4 border-yellow ">
+                {imgURL ? (
+                  <img
+                    className="w-full  rounded-sm "
+                    src={imgURL}
+                    alt="Imagem"
+                  />
+                ) : (
+                  <h1 className="w-full justify-center items-center flex uppercase font-bold bg-yellow/15">
+                    Nenhuma imagem selecionada!
+                  </h1>
+                )}
+              </div>
+              <div>
+                {!imgURL &&
+                  testData.map((item, idx) => (
+                    <ProgressBar
+                      key={idx}
+                      bgcolor={item.bgcolor}
+                      completed={item.completed}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
         </Box>

@@ -24,7 +24,7 @@ export default function Drawer() {
     <div className="w-min h-full ">
       <div className="text-left pl-10 mt-4">
         <h1 className="text-yellow text-5xl  font-bold mb-2">Jô Pães</h1>
-        <p className="text-slate-100 uppercase">Doces e salgados</p>
+        <p className="text-black uppercase ">Doces e salgados</p>
       </div>
       <div className="grid gap-4 border-r-[1px] pr-2 h-full pt-10 border-gray-400 ">
         <Button

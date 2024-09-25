@@ -63,7 +63,6 @@ export default function Signin() {
         )}
 
         <Button title="ENTRAR" onClick={LoginUser} />
-        <UserProfile />
       </div>
     </div>
   );

@@ -28,7 +28,7 @@ type Props = {
 
 export default function CardProduct(type: Props) {
   const [Products, setProducts] = useState<Products[]>([]);
-  const [scroll, setScroll] = useState(true);
+  const [scroll, setScroll] = useState(false);
 
   useEffect(() => {
     const productCollection = query(
@@ -57,42 +57,41 @@ export default function CardProduct(type: Props) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-6 justify-center  max-h-[450px] overflow-y-scroll ">
-      {Products.map((product) => (
-        <div
-          key={product.id}
-          className="basis-[550px] flex bg-white rounded-lg h-28  "
-        >
-          <img
-            src={product.imgURL}
-            alt={product.name}
-            className="h-full rounded-s-lg "
-          />
-          <div className="p-2 flex w-full justify-between">
-            <div className="">
-              <p className="font-bold">{product.name}</p>
-              <p className="text-sm w-4/5    ">{product.description}</p>
-              <p className="text-orange-600 font-medium text-xl ">
-                R$ {product.value}
-              </p>
-            </div>
-            <div className="w-1/3 flex-col flex justify-between  ">
-              <Button
-                button
-                children={<Trash2 />}
-                onClick={() => deleteProduct(product.id)}
-              />
-              <BasicModal
-                name={product.name}
-                description={product.description}
-                genre={product.genre}
-                value={product.value}
-                imgURL={product.imgURL}
-              />
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-center max-h-[450px] overflow-y-auto overflow-x-hidden pr-2">
+        {Products.map((product) => (
+          <div key={product.id} className="  flex bg-black/10 rounded-lg ">
+            <img
+              src={product.imgURL}
+              alt={product.name}
+              className="rounded-s-lg w-28"
+            />
+            <div className="p-2 flex w-full justify-between">
+              <div className="justify-evenly flex flex-col w-full">
+                <p className="font-bold">{product.name}</p>
+                <p className="text-sm w-4/5">{product.description}</p>
+                <p className="text-orange-600 font-medium text-xl">
+                  R$ {product.value}
+                </p>
+              </div>
+              <div className="w-1/3 flex-col flex justify-between">
+                <Button
+                  button
+                  children={<Trash2 />}
+                  onClick={() => deleteProduct(product.id)}
+                />
+                <BasicModal
+                  name={product.name}
+                  description={product.description}
+                  genre={product.genre}
+                  value={product.value}
+                  imgURL={product.imgURL}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </>
   );
 }

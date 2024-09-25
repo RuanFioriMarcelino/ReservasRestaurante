@@ -92,11 +92,11 @@ export default function ModalCreateDrinks() {
         imgURL: imgURL,
         category: "drink",
       });
-      handleClose();
+      /*      handleClose();
       setProgress(0);
       setGenre("");
       setImgURL("");
-      alert("Produto cadastrado com sucesso");
+      alert("Produto cadastrado com sucesso"); */
     } catch (error) {
       console.error("Error adding product: ", error);
     }

@@ -13,7 +13,8 @@ export function Button({ button, children, onClick, ...rest }: Props) {
         <button
           {...rest}
           onClick={onClick}
-          className=" bg-opacity-10 bg-red-700 h-11  rounded-lg w-full justify-center flex hover:bg-opacity-100 text-red-700  items-center hover:text-white transition-all ease-in duration-[45ms] "
+          className="bg-red-900 w-full   text-white h-11 rounded-lg justify-center flex hover:bg-opacity-100 hover:text-white transition-all ease-in duration-[45ms] 
+          items-center"
         >
           {children}
         </button>
@@ -21,7 +22,7 @@ export function Button({ button, children, onClick, ...rest }: Props) {
         <button
           {...rest}
           onClick={onClick}
-          className="bg-opacity-10 bg-yellow h-11 rounded-lg w-full justify-center flex  hover:bg-opacity-100 hover:text-white transition-all ease-in duration-[45ms] text-yellow items-center"
+          className="bg-amber-600 w-full text-white h-11 rounded-lg  justify-center flex  hover:bg-opacity-100 hover:text-white transition-all ease-in duration-[45ms]  items-center"
         >
           {children}
         </button>
