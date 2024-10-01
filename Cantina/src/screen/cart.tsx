@@ -79,7 +79,7 @@ export default function Cart() {
 
     const foodsList: Foods[] = [];
     for (const item of productsCart) {
-      const docRef = doc(database, "foods", item.id);
+      const docRef = doc(database, "products", item.id);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data() as Foods;

@@ -15,7 +15,9 @@ import {
   collection,
   doc,
   onSnapshot,
+  query,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { auth, database } from "../config/firebaseconfig";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -26,7 +28,7 @@ interface Foods {
   name: string;
   description: string;
   genre: string;
-  valor: string;
+  value: string;
   imgURL: string;
   cart: boolean;
 }
@@ -39,7 +41,7 @@ interface ProductsCart {
 export default function Home() {
   const [foods, setFoods] = useState<Foods[]>([]);
   const [productsCart, setProductsCart] = useState<ProductsCart[]>([]);
-
+  const [scroll, setScroll] = useState(false);
   const date = new Date().getDate();
   const month = new Date().getMonth() + 1;
   const [refreshing, setRefreshing] = React.useState(false);
@@ -77,18 +79,25 @@ export default function Home() {
   }, [userUID]);
 
   useEffect(() => {
-    const idProduct = productsCart.map((item) => item.id);
-    const productCollection = collection(database, "foods");
+    const productCollection = query(
+      collection(database, "products"),
+      where("category", "==", "food")
+    );
     const unsubscribe = onSnapshot(productCollection, (query) => {
       const list: Foods[] = [];
       query.forEach((doc) => {
-        if (idProduct.includes(doc.id))
-          list.push({ ...doc.data(), id: doc.id } as Foods);
+        list.push({ ...doc.data(), id: doc.id } as Foods);
       });
       setFoods(list);
+      if (list.length <= 4) {
+        setScroll(false);
+        console.log("é falso: ", list.length);
+      }
+      console.log(list.map((list) => list.name));
     });
+
     return () => unsubscribe();
-  }, [productsCart, database]);
+  }, []);
 
   const addForCart = async (foodId: any) => {
     try {
@@ -152,8 +161,10 @@ export default function Home() {
                 <Text className="text-xl font-bold text-laranja-200">
                   {food.name}
                 </Text>
-                ''
-                <Text className="font-light">{food.description}</Text>
+
+                <Text className="font-light h-10 text-ellipsis overflow-hidden">
+                  {food.description}
+                </Text>
                 <View className="flex flex-row gap-2 ">
                   <View className="bg-laranja-200 px-2 py-1 rounded-xl">
                     <TouchableOpacity onPress={() => addForCart(food.id)}>
@@ -165,7 +176,7 @@ export default function Home() {
                     </TouchableOpacity>
                   </View>
                   <Text className="font-medium text-2xl text-laranja-200">
-                    R${food.valor}
+                    R${food.value}
                   </Text>
                 </View>
               </View>
