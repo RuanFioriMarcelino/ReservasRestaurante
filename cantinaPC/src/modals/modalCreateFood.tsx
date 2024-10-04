@@ -107,7 +107,7 @@ export default function ModalCreateFood() {
   return (
     <div>
       <button
-        className="text-white uppercase font-regular bg-yellow p-2 rounded-lg hover:bg-black/50 transition-all duration-75 ease-in"
+        className="text-white uppercase font-regular bg-yellow p-2 rounded-lg hover:bg-opacity-65 hover:scale-105  transition-all duration-75 ease-in"
         onClick={handleOpen}
       >
         Cadastrar

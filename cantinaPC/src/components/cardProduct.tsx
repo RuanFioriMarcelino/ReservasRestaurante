@@ -60,7 +60,10 @@ export default function CardProduct(type: Props) {
     <>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-center max-h-[450px] overflow-y-auto overflow-x-hidden pr-2">
         {Products.map((product) => (
-          <div key={product.id} className="  flex bg-black/10 rounded-lg ">
+          <div
+            key={product.id}
+            className="  flex bg-white rounded-lg shadow-md shadow-gray"
+          >
             <img
               src={product.imgURL}
               alt={product.name}
