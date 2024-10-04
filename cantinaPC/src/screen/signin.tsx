@@ -3,7 +3,6 @@ import { Button } from "../components/buttonLogin";
 import { Input } from "../components/input";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseconfig";
-import UserProfile from "../components/getUser";
 
 export default function Signin() {
   const [email, setEmail] = useState("");
@@ -21,13 +20,13 @@ export default function Signin() {
           // Usuário logado
           const user = userCredential.user;
           console.log("Usuário logado:", user);
+          localStorage.setItem("IsLoged", "true");
+          localStorage.setItem("button", "1");
+          window.location.replace("/");
         })
         .catch((error) => {
           console.error("Erro ao logar:", error);
         });
-      localStorage.setItem("IsLoged", "true");
-      localStorage.setItem("button", "1");
-      window.location.replace("/");
 
       console.log("Credencial do cusuário: ", userCredential);
     } catch (error) {
