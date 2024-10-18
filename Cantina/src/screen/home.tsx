@@ -11,7 +11,6 @@ import AvatarBar from "../components/avatarBar";
 
 import React, { useEffect, useState } from "react";
 import {
-  addDoc,
   collection,
   doc,
   onSnapshot,

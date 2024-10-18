@@ -33,19 +33,25 @@ interface Foods {
   id: string;
   name: string;
   description: string;
-  valor: string;
+  value: string;
   imgURL: string;
   order: number;
   quantity: number;
   idCart: string;
 }
 
-export default function Cart() {
+export default function Cart({ navigation }: any, { value }: Foods) {
   const [productsCart, setProductsCart] = useState<ProductsCart[]>([]);
   const [foods, setFoods] = useState<Foods[]>([]);
   const user = auth.currentUser;
   const userUID = user?.uid.toString();
   const [refreshing, setRefreshing] = useState(false);
+  const values = foods.map((item) => parseFloat(item.value) * item.quantity);
+
+  var sum = 0;
+  for (var i = 0; i < values.length; i++) {
+    sum += values[i];
+  }
 
   const fetchProductsCart = useCallback(() => {
     if (!userUID) return;
@@ -119,11 +125,10 @@ export default function Cart() {
   }
 
   const editTask = async (id: any, operation: any, quantity: any) => {
-    const tst = quantity + operation;
-    console.log(tst);
+    const qtt = quantity + operation;
     const taskdocRef = doc(database, "cart", `${userUID}`, "data", id);
     await updateDoc(taskdocRef, {
-      quantity: tst,
+      quantity: qtt,
     });
   };
 
@@ -231,13 +236,21 @@ export default function Cart() {
           </View>
         ))}
       </ScrollView>
+
       {productsCart.length === 0 ? null : (
-        <View className="p-3">
+        <View className="p-6 bg-slate-50 shadow-2xl shadow-black rounded-t-3xl gap-2">
+          <View>
+            <Text>Total</Text>
+            <Text className="text-laranja-100 font-bold text-2xl">
+              R$ {sum}
+            </Text>
+          </View>
           <Button
-            title="Formas de Pagamento"
-            disabled
+            title="FINALIZAR O PEDIDO"
+            isLoading={false}
             bgcolor={colors.laranja[100]}
             textColor={colors.white}
+            onPress={() => navigation.navigate("Payment")}
           />
         </View>
       )}

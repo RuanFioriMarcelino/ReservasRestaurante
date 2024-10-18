@@ -11,6 +11,7 @@ import Register from "../screen/Register";
 import Login from "../screen/login";
 import Notification from "../screen/notification";
 import { auth } from "../config/firebaseconfig";
+import Payment from "../screen/payment";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -43,6 +44,11 @@ export function MyStack() {
         <Stack.Screen
           name="Notification"
           component={Notification}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Payment"
+          component={Payment}
           options={{ headerShown: false }}
         />
       </>

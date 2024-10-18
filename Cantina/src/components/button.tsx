@@ -15,7 +15,7 @@ type Props = TouchableOpacityProps & {
 
 export function Button({
   title,
-  isLoading = false,
+  isLoading,
   bgcolor,
   textColor,
   ...rest
@@ -27,7 +27,7 @@ export function Button({
         style={{ backgroundColor: `${bgcolor}` }}
       >
         {isLoading ? (
-          <ActivityIndicator className="text-green-500" />
+          <ActivityIndicator className="text-white" />
         ) : (
           <Text
             className="text-laranja-100 text-base font-bold uppercase"
