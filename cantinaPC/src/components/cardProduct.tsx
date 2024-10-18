@@ -69,7 +69,7 @@ export default function CardProduct(type: Props) {
             <div className="p-2 flex w-full justify-between">
               <div className="justify-evenly flex flex-col w-full">
                 <p className="font-bold">{product.name}</p>
-                <p className="text-sm w-80 h-10  overflow-hidden text-ellipsis ">
+                <p className="text-sm  h-10  overflow-hidden text-ellipsis ">
                   {product.description}
                 </p>
                 <p className="text-orange-600 font-medium text-xl">

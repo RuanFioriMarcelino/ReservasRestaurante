@@ -37,7 +37,7 @@ export default function Signin() {
 
   return (
     <div className="w-full h-screen items-center justify-center flex bg-black_">
-      <div className="bg-slate-800 flex-col flex gap-8 text-center w-1/4 px-8 py-10 rounded-xl  shadow-slate-800 shadow-lg">
+      <div className="bg-zinc-950 flex-col flex gap-8 text-center w-1/4 px-8 py-10 rounded-xl  shadow-slate-800 shadow-lg">
         <h1 className="text-white font-bold text-2xl">LOGIN</h1>
         <Input icon={null}>
           <Input.Field

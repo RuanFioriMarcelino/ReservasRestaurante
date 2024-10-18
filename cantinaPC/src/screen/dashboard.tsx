@@ -9,7 +9,7 @@ export function Dashboard() {
   return (
     <div>
       <h1 className="text-gray-800 font-bold text-xl">DASHBOARD</h1>
-      <p className="text-gray-300 flex">
+      <p className="text-gray-400 flex">
         Olá,
         <span className="ml-1 ">
           <UserProfile />

@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 
 export default function Card({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-white gap-6 w-min flex items-center justify-center py-4 px-9 rounded-lg">
+    <div className="bg-white gap-6 w-min flex items-center justify-center py-4 px-9 rounded-lg shadow shadow-black/20  cursor-pointer">
       <div className="w-16">{children}</div>
 
       <span>
