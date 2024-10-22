@@ -250,7 +250,12 @@ export default function Cart({ navigation }: any, { value }: Foods) {
             isLoading={false}
             bgcolor={colors.laranja[100]}
             textColor={colors.white}
-            onPress={() => navigation.navigate("Payment")}
+            onPress={() => {
+              navigation.navigate("Payment", {
+                orderDetails: foods.map((item) => item.id),
+                total: sum,
+              });
+            }}
           />
         </View>
       )}

@@ -1,11 +1,11 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
 import { View } from "react-native";
 
 import Home from "../screen/home";
-import Drinks from "../screen/drinks";
+
 import Cart from "../screen/cart";
 import Register from "../screen/Register";
 import Login from "../screen/login";
@@ -74,7 +74,7 @@ export function MyTab() {
       <Tab.Screen
         options={{
           headerShown: false,
-          title: "Início",
+          title: "Cardápio",
           tabBarIcon: ({ focused }) => (
             <View
               style={{
@@ -115,33 +115,6 @@ export function MyTab() {
         }}
         name="Cart"
         component={Cart}
-      />
-
-      <Tab.Screen
-        options={{
-          headerShown: false,
-          title: "Bebidas",
-          tabBarIcon: ({ focused }) => (
-            <View
-              style={{
-                paddingHorizontal: 14,
-                paddingVertical: 6,
-                borderRadius: 18,
-                backgroundColor: focused
-                  ? colors.laranja[200]
-                  : colors.laranja[100],
-              }}
-            >
-              <MaterialCommunityIcons
-                name="cup"
-                size={24}
-                color={colors.white}
-              />
-            </View>
-          ),
-        }}
-        name="Drinks"
-        component={Drinks}
       />
     </Tab.Navigator>
   );
