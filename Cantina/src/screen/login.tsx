@@ -27,8 +27,6 @@ export default function Login({ navigation }: any) {
       );
 
       navigation.navigate("Home", { idUser: userCredential.user.uid });
-
-      console.log("Uid: ", userCredential.user.uid);
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       setError(true);

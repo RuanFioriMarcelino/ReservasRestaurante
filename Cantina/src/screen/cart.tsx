@@ -40,18 +40,16 @@ interface Foods {
   idCart: string;
 }
 
-export default function Cart({ navigation }: any, { value }: Foods) {
+export default function Cart({ navigation }: any) {
   const [productsCart, setProductsCart] = useState<ProductsCart[]>([]);
   const [foods, setFoods] = useState<Foods[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const user = auth.currentUser;
   const userUID = user?.uid.toString();
-  const [refreshing, setRefreshing] = useState(false);
   const values = foods.map((item) => parseFloat(item.value) * item.quantity);
-
-  var sum = 0;
-  for (var i = 0; i < values.length; i++) {
-    sum += values[i];
-  }
+  const sum = values.reduce((acc, curr) => acc + curr, 0);
 
   const fetchProductsCart = useCallback(() => {
     if (!userUID) return;
@@ -80,6 +78,7 @@ export default function Cart({ navigation }: any, { value }: Foods) {
   const fetchFoods = useCallback(async () => {
     if (productsCart.length === 0) {
       setFoods([]);
+      setLoading(false);
       return;
     }
 
@@ -100,11 +99,12 @@ export default function Cart({ navigation }: any, { value }: Foods) {
       }
     }
     setFoods(foodsList);
+    setLoading(false);
   }, [productsCart]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    fetchProductsCart();
+    await fetchProductsCart();
     await fetchFoods();
     setRefreshing(false);
   }, [fetchProductsCart, fetchFoods]);
@@ -122,9 +122,9 @@ export default function Cart({ navigation }: any, { value }: Foods) {
     if (!userUID) return;
     const taskDocRef = doc(database, "cart", `${userUID}`, "data", id);
     await deleteDoc(taskDocRef);
+    setProductsCart((prev) => prev.filter((item) => item.id !== id));
   }
-
-  const editTask = async (id: any, operation: any, quantity: any) => {
+  const editTask = async (id: string, operation: number, quantity: number) => {
     const qtt = quantity + operation;
     const taskdocRef = doc(database, "cart", `${userUID}`, "data", id);
     await updateDoc(taskdocRef, {
@@ -133,7 +133,7 @@ export default function Cart({ navigation }: any, { value }: Foods) {
   };
 
   return (
-    <SafeAreaView className="flex-1 w-screen">
+    <SafeAreaView className="flex-1 ">
       <AvatarBar />
       <Text className="text-center text-laranja-200 font-bold text-2xl mt-2">
         Carrinho
@@ -149,92 +149,119 @@ export default function Cart({ navigation }: any, { value }: Foods) {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {foods.map((product, order) => (
-          <View
-            key={product.id}
-            className="bg-laranja-100 h-28 flex-row rounded-lg shadow-[0px_20px_10px_12px_#1a202c]"
-          >
-            <Text className="self-center text-2xl px-2 text-white font-bold">
-              {order + 1}
-            </Text>
-            <Image
-              source={{
-                uri: product.imgURL,
-              }}
+        {loading ? (
+          <View className="bg-gray-300 h-28 flex-row rounded-lg shadow p-4">
+            <View
               style={{
                 width: 80,
+                height: 80,
+                backgroundColor: "#ccc",
                 borderRadius: 10,
-                backgroundColor: "white",
               }}
             />
-            <View className="flex-1 flex-row justify-evenly items-center ">
-              <View className="flex-1 p-2 gap-4">
-                <Text className="text-white text-xl font-medium">
-                  {product.name}
-                </Text>
-
-                <TouchableOpacity activeOpacity={0.5} className="mt-2">
-                  <View className="flex flex-row items-center justify-center gap-2 rounded-xl bg-laranja-200 p-1">
-                    <Feather
-                      name="alert-circle"
-                      size={15}
-                      color={colors.white}
-                    />
-                    <Text className="text-white font-medium">Observação</Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View className="flex-row items-center">
-                <View className="items-center justify-center px-2">
-                  <TouchableOpacity
-                    onPress={() =>
-                      editTask(product.idCart, +1, product.quantity)
-                    }
-                  >
-                    <View className="p-1 bg-laranja-200 rounded-full">
-                      <MaterialIcons
-                        name="add"
-                        size={20}
+            <View style={{ flex: 1, paddingLeft: 10 }}>
+              <View
+                style={{
+                  width: "60%",
+                  height: 20,
+                  backgroundColor: "#ccc",
+                  marginBottom: 10,
+                }}
+              />
+              <View
+                style={{ width: "40%", height: 20, backgroundColor: "#ccc" }}
+              />
+            </View>
+          </View>
+        ) : (
+          foods.map((product, order) => (
+            <View
+              key={product.id}
+              className="bg-laranja-100 h-28 flex-row rounded-lg shadow-[0px_20px_10px_12px_#1a202c]"
+            >
+              <Text className="self-center text-2xl px-2 text-white font-bold">
+                {order + 1}
+              </Text>
+              <Image
+                source={{
+                  uri: product.imgURL,
+                }}
+                style={{
+                  width: 80,
+                  borderRadius: 10,
+                  backgroundColor: "white",
+                }}
+              />
+              <View className="flex-1 flex-row justify-evenly items-center ">
+                <View className="flex-1 p-2 gap-4">
+                  <Text className="text-white text-xl font-medium">
+                    {product.name}
+                  </Text>
+                  <TouchableOpacity activeOpacity={0.5} className="mt-2">
+                    <View className="flex flex-row items-center justify-center gap-2 rounded-xl bg-laranja-200 p-1">
+                      <Feather
+                        name="alert-circle"
+                        size={15}
                         color={colors.white}
                       />
+                      <Text className="text-white font-medium">Observação</Text>
                     </View>
                   </TouchableOpacity>
-                  <Text className="text-white">{product.quantity}</Text>
-                  {product.quantity > 1 ? (
+                </View>
+                <View className="flex-row items-center">
+                  <View className="items-center justify-center px-2">
                     <TouchableOpacity
                       onPress={() =>
-                        editTask(product.idCart, -1, product.quantity)
+                        editTask(product.idCart, +1, product.quantity)
                       }
                     >
                       <View className="p-1 bg-laranja-200 rounded-full">
                         <MaterialIcons
-                          name="remove"
+                          name="add"
                           size={20}
                           color={colors.white}
                         />
                       </View>
                     </TouchableOpacity>
-                  ) : (
-                    <TouchableOpacity activeOpacity={1}>
-                      <View className="p-1 bg-laranja-200 rounded-full">
-                        <MaterialIcons
-                          name="remove"
-                          size={20}
-                          color={colors.white}
-                        />
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                </View>
-                <TouchableOpacity onPress={() => deleteProduto(product.idCart)}>
-                  <View className="bg-laranja-200 h-full justify-center px-4 rounded-r-lg">
-                    <AntDesign name="delete" color={colors.white} size={20} />
+                    <Text className="text-white">{product.quantity}</Text>
+                    {product.quantity > 1 ? (
+                      <TouchableOpacity
+                        onPress={() =>
+                          editTask(product.idCart, -1, product.quantity)
+                        }
+                      >
+                        <View className="p-1 bg-laranja-200 rounded-full">
+                          <MaterialIcons
+                            name="remove"
+                            size={20}
+                            color={colors.white}
+                          />
+                        </View>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity activeOpacity={1}>
+                        <View className="p-1 bg-laranja-200 rounded-full">
+                          <MaterialIcons
+                            name="remove"
+                            size={20}
+                            color={colors.white}
+                          />
+                        </View>
+                      </TouchableOpacity>
+                    )}
                   </View>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => deleteProduto(product.idCart)}
+                  >
+                    <View className="bg-laranja-200 h-full justify-center px-4 rounded-r-lg">
+                      <AntDesign name="delete" color={colors.white} size={20} />
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
-        ))}
+          ))
+        )}
       </ScrollView>
 
       {productsCart.length === 0 ? null : (

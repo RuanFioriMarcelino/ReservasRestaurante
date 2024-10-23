@@ -90,9 +90,7 @@ export default function Home() {
       setFoods(list);
       if (list.length <= 4) {
         setScroll(false);
-        console.log("é falso: ", list.length);
       }
-      console.log(list.map((list) => list.name));
     });
 
     return () => unsubscribe();

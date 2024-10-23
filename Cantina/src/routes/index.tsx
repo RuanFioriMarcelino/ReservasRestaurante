@@ -1,17 +1,19 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
 import { View } from "react-native";
 
 import Home from "../screen/home";
 
 import Cart from "../screen/cart";
-import Register from "../screen/Register";
+import Register from "../screen/register";
 import Login from "../screen/login";
 import Notification from "../screen/notification";
 import { auth } from "../config/firebaseconfig";
 import Payment from "../screen/payment";
+import { SafeAreaView } from "react-native";
+import ListOrders from "../screen/listOrders";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -19,40 +21,42 @@ const Tab = createBottomTabNavigator();
 export function MyStack() {
   const user = auth.currentUser;
   return (
-    <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
-      {!user ? (
+    <SafeAreaView className="flex-1 bg-laranja-100 pt-8">
+      <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
+        {!user ? (
+          <>
+            <Stack.Screen
+              name="Register"
+              component={Register}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+          </>
+        ) : null}
+
         <>
           <Stack.Screen
-            name="Register"
-            component={Register}
+            name="Home"
+            component={MyTab}
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="Login"
-            component={Login}
+            name="Notification"
+            component={Notification}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Payment"
+            component={Payment}
             options={{ headerShown: false }}
           />
         </>
-      ) : null}
-
-      <>
-        <Stack.Screen
-          name="Home"
-          component={MyTab}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Notification"
-          component={Notification}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Payment"
-          component={Payment}
-          options={{ headerShown: false }}
-        />
-      </>
-    </Stack.Navigator>
+      </Stack.Navigator>
+    </SafeAreaView>
   );
 }
 
@@ -90,7 +94,7 @@ export function MyTab() {
             </View>
           ),
         }}
-        name="Home"
+        name="Cardapio"
         component={Home}
       />
 
@@ -115,6 +119,32 @@ export function MyTab() {
         }}
         name="Cart"
         component={Cart}
+      />
+      <Tab.Screen
+        options={{
+          headerShown: false,
+          title: "Meus Pedidos",
+          tabBarIcon: ({ focused }) => (
+            <View
+              style={{
+                paddingHorizontal: 14,
+                paddingVertical: 6,
+                borderRadius: 18,
+                backgroundColor: focused
+                  ? colors.laranja[200]
+                  : colors.laranja[100],
+              }}
+            >
+              <FontAwesome5
+                name="clipboard-list"
+                size={24}
+                color={colors.white}
+              />
+            </View>
+          ),
+        }}
+        name="ListOrders"
+        component={ListOrders}
       />
     </Tab.Navigator>
   );

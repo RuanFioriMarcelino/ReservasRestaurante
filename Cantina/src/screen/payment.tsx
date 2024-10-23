@@ -5,19 +5,25 @@ import {
   TouchableOpacity,
   StyleSheet,
   Modal,
+  Alert,
 } from "react-native";
 import AvatarBar from "../components/avatarBar";
 import { Button } from "../components/button";
 import { colors } from "../styles/colors";
 import { AntDesign } from "@expo/vector-icons";
 import { useState } from "react";
-import { addDoc, collection, doc, setDoc } from "firebase/firestore";
-import { auth, database } from "../config/firebaseconfig";
+import {
+  addDoc,
+  auth,
+  collection,
+  database,
+  deleteDoc,
+  doc,
+} from "../config/firebaseconfig";
 
 export default function Payment({ route, navigation }: any) {
   const { orderDetails, total } = route.params;
-
-  console.log("Parametros: ", orderDetails, total);
+  const user = auth.currentUser?.uid;
 
   const [payment, setPayment] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
@@ -30,22 +36,37 @@ export default function Payment({ route, navigation }: any) {
 
   const cadOrder = async () => {
     try {
-      const user = auth.currentUser;
       if (!user) return;
-      const userUID = user.uid;
       const orderCollectionRef = collection(database, "orders");
       await addDoc(orderCollectionRef, {
         addedAt: new Date(),
-        userUID,
+        user,
         orderDetails,
         total,
         paymentMethod: selectedPayment,
       });
       console.log("Pedido registrado com sucesso!");
+      delCart(orderDetails);
+      Alert.alert("Pedido", "Seu pedido foi feito com sucesso!", [
+        {
+          onPress: () => navigation.navigate("Cardapio"),
+        },
+      ]);
     } catch (error) {
       console.error("Erro ao registrar pedido: ", error);
     }
   };
+
+  async function delCart(ids: any) {
+    if (!user) return;
+    console.log(ids);
+    for (const i in ids) {
+      const taskDocRef = doc(database, "cart", `${user}`, "data", `${ids[i]}`);
+      await deleteDoc(taskDocRef);
+      console.log("esse é um ID: ", i);
+    }
+  }
+
   return (
     <>
       <AvatarBar />
