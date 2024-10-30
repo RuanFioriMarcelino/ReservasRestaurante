@@ -44,6 +44,7 @@ export default function Payment({ route, navigation }: any) {
         orderDetails,
         total,
         paymentMethod: selectedPayment,
+        status: "Processando",
       });
       console.log("Pedido registrado com sucesso!");
       delCart(orderDetails);
@@ -63,7 +64,6 @@ export default function Payment({ route, navigation }: any) {
     for (const i in ids) {
       const taskDocRef = doc(database, "cart", `${user}`, "data", `${ids[i]}`);
       await deleteDoc(taskDocRef);
-      console.log("esse é um ID: ", i);
     }
   }
 

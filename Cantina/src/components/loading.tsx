@@ -1,5 +1,7 @@
-import { ActivityIndicator} from "react-native";
+import { ActivityIndicator } from "react-native";
 
-export function Loading(){
-return <ActivityIndicator/>
+export function Loading() {
+  return (
+    <ActivityIndicator className="items-center justify-center text-white" />
+  );
 }

@@ -5,27 +5,23 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import AvatarBar from "../components/avatarBar";
 import { auth, collection, database } from "../config/firebaseconfig";
-import {
-  doc,
-  getDoc,
-  getDocs,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
+import { documentId, getDocs, query, where } from "firebase/firestore";
+
+import { AntDesign } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
-import { Feather, MaterialIcons } from "@expo/vector-icons";
 
 interface OrdersList {
   id: string;
   addedAt: string;
-  orderDetails: string; // Assumindo que isto é um array de IDs de produtos ou algo similar
+  orderDetails: string[]; // Assumindo que isto é um array de IDs de produtos ou algo similar
   paymentMethod: string;
   total: string;
+  status: string;
 }
 
 interface Foods {
@@ -37,109 +33,142 @@ interface Foods {
   order: number;
   quantity: number;
   idCart: string;
+  status: string;
+  addedAt: string;
 }
 
 export default function ListOrders() {
   const [ordersList, setOrdersList] = useState<OrdersList[]>([]);
   const [foods, setFoods] = useState<Foods[]>([]);
-  const [detailedFoods, setDetailedFoods] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchOrders = async () => {
+    const q = collection(database, "orders");
+    const querySnapshot = await getDocs(q);
+    const list: OrdersList[] = [];
+
+    querySnapshot.forEach((doc) => {
+      list.push({ ...doc.data(), id: doc.id } as OrdersList);
+    });
+    setOrdersList(list);
+  };
+
+  const fetchFoods = async () => {
+    const allFoods: Foods[] = [];
+
+    for (const item of ordersList) {
+      const productPromises = item.orderDetails.map(async (productId) => {
+        const q = query(
+          collection(database, "products"),
+          where(documentId(), "==", productId)
+        );
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+          allFoods.push({
+            ...doc.data(),
+            id: doc.id,
+            addedAt: item.addedAt,
+            status: item.status,
+          } as Foods);
+        });
+      });
+
+      await Promise.all(productPromises);
+    }
+
+    setFoods(allFoods);
+  };
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      const q = collection(database, "orders");
-      const querySnapshot = await getDocs(q);
-      const list: OrdersList[] = [];
-
-      querySnapshot.forEach((doc) => {
-        list.push({ ...doc.data(), id: doc.id } as OrdersList);
-      });
-      setOrdersList(list);
-    };
     fetchOrders();
   }, []);
 
   useEffect(() => {
-    const fetchFoods = async () => {
-      const q = collection(database, "products");
-      const querySnapshot = await getDocs(q);
-      const list: Foods[] = [];
+    if (ordersList.length > 0) {
+      fetchFoods();
+    }
+  }, [ordersList]);
 
-      querySnapshot.forEach((doc) => {
-        list.push({ ...doc.data(), id: doc.id } as Foods);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchOrders();
+    await fetchFoods();
+    setRefreshing(false);
+  }, [ordersList]);
+
+  function formatFirestoreDateTime(timestamp: any) {
+    if (timestamp && timestamp.seconds) {
+      const date = new Date(timestamp.seconds * 1000); // Converte para milissegundos
+      return date.toLocaleString("pt-BR", {
+        dateStyle: "short", // Formato de data curto (dd/mm/aaaa)
+        timeStyle: "short", // Formato de hora curto (hh:mm)
       });
-      setFoods(list);
-    };
-    fetchFoods();
-  }, []);
-
-  useEffect(() => {
-    const orderProductDetails = ordersList.flatMap((order) => {
-      // Supondo que orderDetails seja uma string separada por vírgulas
-      const productIds = order.orderDetails.split(",");
-
-      return productIds.map((id) => ({
-        productId: id.trim(), // Remova espaços em branco extras, se houver
-        orderId: order.id,
-        addedAt: order.addedAt,
-        paymentMethod: order.paymentMethod,
-      }));
-    });
-
-    const matchedFoods = orderProductDetails
-      .map((detail) => {
-        const food = foods.find((f) => f.id === detail.productId);
-        return food ? { ...food, ...detail } : null;
-      })
-      .filter((item) => item !== null);
-
-    setDetailedFoods(matchedFoods);
-  }, [ordersList, foods]);
-
-  console.log("Produtos detalhados: ", detailedFoods);
+    }
+    return ""; // Retorna vazio se não houver data
+  }
 
   return (
-    <SafeAreaView>
+    <SafeAreaView className="flex-1">
       <AvatarBar />
       <Text className="text-center text-laranja-200 font-bold text-2xl mt-2">
         Meu Pedidos
       </Text>
       <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           gap: 15,
           padding: 10,
         }}
+        className="rounded-3xl"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
-        {foods.map((item) => (
+        {foods.map((item, order) => (
           <View
             key={item.id}
-            className="bg-laranja-100 h-28 flex-row rounded-lg shadow-[0px_20px_10px_12px_#1a202c]"
+            className="bg-laranja-100 h-28 flex-row rounded-lg shadow-md shadow-black"
           >
             <Text className="self-center text-2xl px-2 text-white font-bold">
-              1
+              {order + 1}
             </Text>
             <Image
-              source={{}}
+              source={{ uri: item.imgURL }}
               style={{
                 width: 80,
                 borderRadius: 10,
                 backgroundColor: "white",
               }}
             />
-            <View className="flex-1 flex-row justify-evenly items-center ">
-              <View className="flex-1 p-2 gap-4">
+            <View className="flex-1 ">
+              <View className="flex-1 p-2 gap-1">
                 <Text className="text-white text-xl font-medium">
-                  {item.id}
+                  {item.name}
                 </Text>
-                <TouchableOpacity activeOpacity={0.5} className="mt-2">
-                  <View className="flex flex-row items-center justify-center gap-2 rounded-xl bg-laranja-200 p-1">
-                    <Feather
-                      name="alert-circle"
-                      size={15}
-                      color={colors.white}
-                    />
-                    <Text className="text-white font-medium">Observação</Text>
-                  </View>
-                </TouchableOpacity>
+                <View className="flex flex-row gap-1 items-center">
+                  <AntDesign
+                    name="clockcircleo"
+                    size={12}
+                    color={colors.white}
+                  />
+                  <Text className="text-white">
+                    {formatFirestoreDateTime(item.addedAt)}
+                  </Text>
+                </View>
+
+                <View className="flex-row rounded-xl bg-laranja-200 p-1 ">
+                  <Text className="text-white ">Status: </Text>
+                  <Text
+                    className={`${
+                      item.status == "Processando"
+                        ? "text-red-900"
+                        : "text-green-600"
+                    } font-bold`}
+                  >
+                    {item.status}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>

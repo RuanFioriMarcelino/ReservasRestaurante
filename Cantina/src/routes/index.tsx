@@ -2,24 +2,47 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
-import { View } from "react-native";
+import { Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth"; // Importa a função para monitorar mudanças de autenticação
 
 import Home from "../screen/home";
-
 import Cart from "../screen/cart";
 import Register from "../screen/register";
 import Login from "../screen/login";
 import Notification from "../screen/notification";
-import { auth } from "../config/firebaseconfig";
 import Payment from "../screen/payment";
-import { SafeAreaView } from "react-native";
 import ListOrders from "../screen/listOrders";
+import { auth } from "../config/firebaseconfig";
+import { SafeAreaView } from "react-native";
+import { ActivityIndicator } from "react-native";
+import { Loading } from "../components/loading";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export function MyStack() {
-  const user = auth.currentUser;
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser: any) => {
+      setUser(authUser); // Define o usuário autenticado (ou null se não autenticado)
+      setIsLoading(false); // Define isLoading como false após obter o estado do usuário
+    });
+
+    return unsubscribe; // Desinscreve o listener quando o componente desmonta
+  }, []);
+
+  // Mostra uma tela de carregamento enquanto verifica o estado de autenticação
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-laranja-100 pt-8 justify-center items-center">
+        <Loading />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-laranja-100 pt-8">
       <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>

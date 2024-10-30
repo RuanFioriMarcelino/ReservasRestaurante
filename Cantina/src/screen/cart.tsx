@@ -177,7 +177,7 @@ export default function Cart({ navigation }: any) {
           foods.map((product, order) => (
             <View
               key={product.id}
-              className="bg-laranja-100 h-28 flex-row rounded-lg shadow-[0px_20px_10px_12px_#1a202c]"
+              className="bg-laranja-100 h-28 flex-row rounded-lg shadow-md shadow-black"
             >
               <Text className="self-center text-2xl px-2 text-white font-bold">
                 {order + 1}
