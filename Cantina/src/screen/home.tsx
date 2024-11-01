@@ -1,3 +1,4 @@
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Image,
   RefreshControl,
@@ -7,9 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import AvatarBar from "../components/avatarBar";
-
-import React, { useEffect, useState } from "react";
+import { MaterialIcons } from "@expo/vector-icons";
 import {
   collection,
   doc,
@@ -19,7 +18,8 @@ import {
   where,
 } from "firebase/firestore";
 import { auth, database } from "../config/firebaseconfig";
-import { MaterialIcons } from "@expo/vector-icons";
+import AvatarBar from "../components/avatarBar";
+import SkeletonLoaderHome from "../components/skeletonLoaderHome";
 import { colors } from "../styles/colors";
 
 interface Foods {
@@ -40,14 +40,16 @@ interface ProductsCart {
 export default function Home() {
   const [foods, setFoods] = useState<Foods[]>([]);
   const [productsCart, setProductsCart] = useState<ProductsCart[]>([]);
-  const [scroll, setScroll] = useState(false);
-  const date = new Date().getDate();
-  const month = new Date().getMonth() + 1;
-  const [refreshing, setRefreshing] = React.useState(false);
-  const user = auth.currentUser;
-  const userUID = user?.uid.toString();
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const userUID = auth.currentUser?.uid;
 
-  const onRefresh = React.useCallback(() => {
+  const currentDate = new Date();
+  const formattedDate = `${currentDate.getDate()}/${(currentDate.getMonth() + 1)
+    .toString()
+    .padStart(2, "0")}`;
+
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
@@ -56,25 +58,19 @@ export default function Home() {
 
   useEffect(() => {
     if (!userUID) return;
-    const productCartCollection = collection(
-      database,
-      "cart",
-      `${userUID}`,
-      "data"
-    );
+    const productCartCollection = collection(database, "cart", userUID, "data");
 
     const unsubscribeCart = onSnapshot(
       productCartCollection,
       (querySnapshotCart) => {
-        const list: ProductsCart[] = [];
-        querySnapshotCart.forEach((doc) => {
-          list.push({ ...doc.data(), id: doc.id } as ProductsCart);
-        });
+        const list: ProductsCart[] = querySnapshotCart.docs.map(
+          (doc) => ({ ...doc.data(), id: doc.id } as ProductsCart)
+        );
         setProductsCart(list);
       }
     );
 
-    return unsubscribeCart;
+    return () => unsubscribeCart();
   }, [userUID]);
 
   useEffect(() => {
@@ -82,32 +78,24 @@ export default function Home() {
       collection(database, "products"),
       where("category", "==", "food")
     );
-    const unsubscribe = onSnapshot(productCollection, (query) => {
-      const list: Foods[] = [];
-      query.forEach((doc) => {
-        list.push({ ...doc.data(), id: doc.id } as Foods);
-      });
+
+    const unsubscribe = onSnapshot(productCollection, (querySnapshot) => {
+      const list: Foods[] = querySnapshot.docs.map(
+        (doc) => ({ ...doc.data(), id: doc.id } as Foods)
+      );
       setFoods(list);
-      if (list.length <= 4) {
-        setScroll(false);
-      }
+      setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
 
-  const addForCart = async (foodId: any) => {
+  const addForCart = async (foodId: string) => {
     try {
-      const user = auth.currentUser;
-      if (!user) return;
+      if (!userUID) return;
 
-      const userDoc = doc(database, "cart", user.uid);
-      const dataCollection = collection(userDoc, "data");
-      const foodDoc = doc(dataCollection, `${foodId}`);
-      await setDoc(foodDoc, {
-        addedAt: new Date(),
-        quantity: 1,
-      });
+      const foodDoc = doc(database, "cart", userUID, "data", foodId);
+      await setDoc(foodDoc, { addedAt: new Date(), quantity: 1 });
       console.log("Produto adicionado ao carrinho com sucesso!");
     } catch (error) {
       console.error("Erro ao adicionar produto ao carrinho: ", error);
@@ -117,13 +105,12 @@ export default function Home() {
   return (
     <SafeAreaView className="flex-1">
       <AvatarBar />
-      <Text className="text-center text-laranja-200 font-bold text-2xl mt-2 ">
-        Cardápio dia {date}/{month < 10 ? "0" + month : month}
+      <Text className="text-center text-laranja-200 font-bold text-2xl mt-2">
+        Cardápio dia {formattedDate}
       </Text>
       <ScrollView
         style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
-        bounces={false}
         contentContainerStyle={{
           flexDirection: "row",
           flexWrap: "wrap",
@@ -136,50 +123,54 @@ export default function Home() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {foods.map((food) => (
-          <View
-            key={food.id}
-            className="w-[45%] h-52 p-2 justify-end rounded-[25] bg-slate-50 mt-20 shadow-lg shadow-slate-950"
-          >
-            <View className="relative items-center  ">
-              <Image
-                source={{
-                  uri: food.imgURL,
-                }}
-                style={{
-                  width: 150,
-                  height: 150,
-                  position: "absolute",
-                  bottom: 100,
-                  borderRadius: 100,
-                }}
-              />
-              <View className="flex justify-end items-center gap-1 w-full">
-                <Text className="text-xl font-bold text-laranja-200">
-                  {food.name}
-                </Text>
+        {loading
+          ? Array.from({ length: 4 }).map((_, index) => (
+              <SkeletonLoaderHome key={index} />
+            ))
+          : foods.map((food) => (
+              <View
+                key={food.id}
+                className="w-[45%] h-52 p-2 justify-end rounded-[25] bg-slate-50 mt-20 shadow-lg shadow-slate-950"
+              >
+                <View className="relative items-center  ">
+                  <Image
+                    source={{
+                      uri: food.imgURL,
+                    }}
+                    style={{
+                      width: 150,
+                      height: 150,
+                      position: "absolute",
+                      bottom: 100,
+                      borderRadius: 100,
+                    }}
+                  />
+                  <View className="flex justify-end items-center gap-1 w-full">
+                    <Text className="text-xl font-bold text-laranja-200">
+                      {food.name}
+                    </Text>
 
-                <Text className="font-light h-10 text-ellipsis overflow-hidden">
-                  {food.description}
-                </Text>
-                <View className="flex flex-row gap-2 ">
-                  <View className="bg-laranja-200 px-2 py-1 rounded-xl">
-                    <TouchableOpacity onPress={() => addForCart(food.id)}>
-                      <MaterialIcons
-                        name="shopping-cart"
-                        size={25}
-                        color={colors.white}
-                      />
-                    </TouchableOpacity>
+                    <Text className="font-light h-10 text-ellipsis overflow-hidden">
+                      {food.description}
+                    </Text>
+                    <View className="flex flex-row gap-2 ">
+                      <View className="bg-laranja-200 px-2 py-1 rounded-xl">
+                        <TouchableOpacity onPress={() => addForCart(food.id)}>
+                          <MaterialIcons
+                            name="shopping-cart"
+                            size={25}
+                            color={colors.white}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      <Text className="font-medium text-2xl text-laranja-200">
+                        R${food.value}
+                      </Text>
+                    </View>
                   </View>
-                  <Text className="font-medium text-2xl text-laranja-200">
-                    R${food.value}
-                  </Text>
                 </View>
               </View>
-            </View>
-          </View>
-        ))}
+            ))}
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,3 +1,4 @@
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -7,13 +8,18 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
 import AvatarBar from "../components/avatarBar";
 import { auth, collection, database } from "../config/firebaseconfig";
-import { documentId, getDocs, query, where } from "firebase/firestore";
-
+import {
+  documentId,
+  getDocs,
+  query,
+  where,
+  onSnapshot,
+} from "firebase/firestore";
 import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
+import SkeletonLoader from "../components/skeletonLoader"; // Import the skeleton component
 
 interface OrdersList {
   id: string;
@@ -41,49 +47,67 @@ export default function ListOrders() {
   const [ordersList, setOrdersList] = useState<OrdersList[]>([]);
   const [foods, setFoods] = useState<Foods[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  var i = 0;
+  const [loading, setLoading] = useState(true); // State to manage loading
 
-  const fetchOrders = async () => {
-    const q = collection(database, "orders");
-    const querySnapshot = await getDocs(q);
-    const list: OrdersList[] = [];
+  const user = auth.currentUser?.uid;
 
-    querySnapshot.forEach((doc) => {
-      list.push({ ...doc.data(), id: doc.id } as OrdersList);
+  const fetchOrders = () => {
+    const q = query(
+      collection(database, "orders"),
+      where("user", "==", `${user}`)
+    );
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const list: OrdersList[] = [];
+      querySnapshot.forEach((doc) => {
+        list.push({ ...doc.data(), id: doc.id } as OrdersList);
+      });
+      setOrdersList(list);
     });
-    setOrdersList(list);
+
+    return unsubscribe;
   };
 
   const fetchFoods = async () => {
-    const allFoods: Foods[] = [];
+    const productQuantities = new Map();
 
     for (const item of ordersList) {
-      const productPromises = item.orderDetails.map(async (productId) => {
-        const q = query(
-          collection(database, "products"),
-          where(documentId(), "==", productId)
-        );
-
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
-          allFoods.push({
-            ...doc.data(),
-            id: doc.id,
-            addedAt: item.addedAt,
-            status: item.status,
-          } as Foods);
-        });
+      item.orderDetails.forEach((productId) => {
+        if (productQuantities.has(productId)) {
+          productQuantities.set(
+            productId,
+            productQuantities.get(productId) + 1
+          );
+        } else {
+          productQuantities.set(productId, 1);
+        }
       });
-      i++;
+    }
 
-      await Promise.all(productPromises);
+    const allFoods: Foods[] = [];
+    for (const [productId, quantity] of productQuantities.entries()) {
+      const q = query(
+        collection(database, "products"),
+        where(documentId(), "==", productId)
+      );
+
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        allFoods.push({
+          ...doc.data(), // Asegure-se de que todos os campos estão incluídos
+          id: doc.id,
+          quantity,
+        } as Foods);
+      });
     }
 
     setFoods(allFoods);
+    setLoading(false);
   };
 
   useEffect(() => {
-    fetchOrders();
+    const unsubscribe = fetchOrders();
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -94,20 +118,20 @@ export default function ListOrders() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchOrders();
+    setLoading(true); // Show skeleton during refresh
     await fetchFoods();
     setRefreshing(false);
   }, [ordersList]);
 
   function formatFirestoreDateTime(timestamp: any) {
     if (timestamp && timestamp.seconds) {
-      const date = new Date(timestamp.seconds * 1000); // Converte para milissegundos
+      const date = new Date(timestamp.seconds * 1000);
       return date.toLocaleString("pt-BR", {
-        dateStyle: "short", // Formato de data curto (dd/mm/aaaa)
-        timeStyle: "short", // Formato de hora curto (hh:mm)
+        dateStyle: "short",
+        timeStyle: "short",
       });
     }
-    return ""; // Retorna vazio se não houver data
+    return "";
   }
 
   return (
@@ -127,59 +151,67 @@ export default function ListOrders() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {foods.map((item, order) => (
-          <View
-            key={item.id}
-            className="bg-slate-50 h-28 flex-row rounded-lg shadow-md shadow-black justify-between"
-          >
-            <View className="flex-row">
-              <Text className="self-center text-2xl px-2 text-laranja-100 font-bold">
-                {order + 1}
-              </Text>
-              <Image
-                source={{ uri: item.imgURL }}
-                style={{
-                  width: 80,
-                  borderRadius: 10,
-                  backgroundColor: "white",
-                }}
-              />
-              <View>
-                <View className="flex-1 p-2 gap-1">
-                  <Text className="text-laranja-200 text-xl font-medium">
-                    {item.name}
-                  </Text>
-                  <View className="flex flex-row gap-1 items-center">
-                    <AntDesign name="clockcircleo" size={12} color="black" />
-                    <Text className="text-black">
-                      {formatFirestoreDateTime(item.addedAt)}
+        {loading ? (
+          <>
+            <SkeletonLoader />
+            <SkeletonLoader />
+            <SkeletonLoader />
+          </>
+        ) : (
+          foods.map((item, order) => (
+            <View
+              key={item.id}
+              className="bg-slate-50 h-28 flex-row rounded-lg shadow-md shadow-black justify-between"
+            >
+              <View className="flex-row">
+                <Text className="self-center text-2xl px-2 text-laranja-100 font-bold">
+                  {order + 1}
+                </Text>
+                <Image
+                  source={{ uri: item.imgURL }}
+                  style={{
+                    width: 80,
+                    borderRadius: 10,
+                    backgroundColor: "white",
+                  }}
+                />
+                <View>
+                  <View className="flex-1 p-2 gap-1">
+                    <Text className="text-laranja-200 text-xl font-medium">
+                      {item.name}
                     </Text>
-                  </View>
+                    <View className="flex flex-row gap-1 items-center">
+                      <AntDesign name="clockcircleo" size={12} color="black" />
+                      <Text className="text-black">
+                        {formatFirestoreDateTime(item.addedAt)}
+                      </Text>
+                    </View>
 
-                  <View className="flex-row rounded-xl bg-laranja-100 p-1 ">
-                    <Text className="text-white ">Status: </Text>
-                    <Text
-                      className={`${
-                        item.status == "Processando"
-                          ? "text-red-900"
-                          : "text-green-600"
-                      } font-bold`}
-                    >
-                      {item.status}
-                    </Text>
+                    <View className="flex-row rounded-xl bg-laranja-100 p-1 ">
+                      <Text className="text-white ">Status: </Text>
+                      <Text
+                        className={`${
+                          item.status == "Processando"
+                            ? "text-red-900"
+                            : "text-green-600"
+                        } font-bold`}
+                      >
+                        {item.status}
+                      </Text>
+                    </View>
                   </View>
                 </View>
               </View>
+              <View>
+                <TouchableOpacity>
+                  <View className="bg-laranja-100 h-full justify-center px-4 rounded-r-lg">
+                    <AntDesign name="edit" color={colors.white} size={20} />
+                  </View>
+                </TouchableOpacity>
+              </View>
             </View>
-            <View>
-              <TouchableOpacity>
-                <View className="bg-laranja-100 h-full justify-center px-4 rounded-r-lg">
-                  <AntDesign name="edit" color={colors.white} size={20} />
-                </View>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );

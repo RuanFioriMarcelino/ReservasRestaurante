@@ -1,17 +1,16 @@
+import React, { useState } from "react";
 import {
   View,
   Text,
   SafeAreaView,
   TouchableOpacity,
   StyleSheet,
-  Modal,
   Alert,
 } from "react-native";
 import AvatarBar from "../components/avatarBar";
 import { Button } from "../components/button";
 import { colors } from "../styles/colors";
 import { AntDesign } from "@expo/vector-icons";
-import { useState } from "react";
 import {
   addDoc,
   auth,
@@ -21,6 +20,7 @@ import {
   doc,
 } from "../config/firebaseconfig";
 import { StatusBar } from "expo-status-bar";
+import ModalOverlay from "../components/modal";
 
 export default function Payment({ route, navigation }: any) {
   const { orderDetails, total } = route.params;
@@ -116,13 +116,10 @@ export default function Payment({ route, navigation }: any) {
           )}
         </View>
       </SafeAreaView>
-      <Modal
-        transparent={true}
+      <ModalOverlay
         visible={modalVisible}
-        animationType="slide"
         onRequestClose={() => setModalVisible(false)}
       >
-        <StatusBar backgroundColor="rgba(0, 0, 0, 0.5)" />
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>
@@ -147,7 +144,7 @@ export default function Payment({ route, navigation }: any) {
             </View>
           </View>
         </View>
-      </Modal>
+      </ModalOverlay>
     </>
   );
 }
