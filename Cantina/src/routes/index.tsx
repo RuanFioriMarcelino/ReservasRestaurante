@@ -44,7 +44,7 @@ export function MyStack() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-laranja-100 pt-8">
+    <SafeAreaView className="flex-1 bg-laranja-100 ">
       <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
         {!user ? (
           <>

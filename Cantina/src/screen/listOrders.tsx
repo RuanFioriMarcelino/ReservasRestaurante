@@ -12,7 +12,7 @@ import AvatarBar from "../components/avatarBar";
 import { auth, collection, database } from "../config/firebaseconfig";
 import { documentId, getDocs, query, where } from "firebase/firestore";
 
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
 
 interface OrdersList {
@@ -41,6 +41,7 @@ export default function ListOrders() {
   const [ordersList, setOrdersList] = useState<OrdersList[]>([]);
   const [foods, setFoods] = useState<Foods[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  var i = 0;
 
   const fetchOrders = async () => {
     const q = collection(database, "orders");
@@ -73,6 +74,7 @@ export default function ListOrders() {
           } as Foods);
         });
       });
+      i++;
 
       await Promise.all(productPromises);
     }
@@ -128,48 +130,53 @@ export default function ListOrders() {
         {foods.map((item, order) => (
           <View
             key={item.id}
-            className="bg-laranja-100 h-28 flex-row rounded-lg shadow-md shadow-black"
+            className="bg-slate-50 h-28 flex-row rounded-lg shadow-md shadow-black justify-between"
           >
-            <Text className="self-center text-2xl px-2 text-white font-bold">
-              {order + 1}
-            </Text>
-            <Image
-              source={{ uri: item.imgURL }}
-              style={{
-                width: 80,
-                borderRadius: 10,
-                backgroundColor: "white",
-              }}
-            />
-            <View className="flex-1 ">
-              <View className="flex-1 p-2 gap-1">
-                <Text className="text-white text-xl font-medium">
-                  {item.name}
-                </Text>
-                <View className="flex flex-row gap-1 items-center">
-                  <AntDesign
-                    name="clockcircleo"
-                    size={12}
-                    color={colors.white}
-                  />
-                  <Text className="text-white">
-                    {formatFirestoreDateTime(item.addedAt)}
+            <View className="flex-row">
+              <Text className="self-center text-2xl px-2 text-laranja-100 font-bold">
+                {order + 1}
+              </Text>
+              <Image
+                source={{ uri: item.imgURL }}
+                style={{
+                  width: 80,
+                  borderRadius: 10,
+                  backgroundColor: "white",
+                }}
+              />
+              <View>
+                <View className="flex-1 p-2 gap-1">
+                  <Text className="text-laranja-200 text-xl font-medium">
+                    {item.name}
                   </Text>
-                </View>
+                  <View className="flex flex-row gap-1 items-center">
+                    <AntDesign name="clockcircleo" size={12} color="black" />
+                    <Text className="text-black">
+                      {formatFirestoreDateTime(item.addedAt)}
+                    </Text>
+                  </View>
 
-                <View className="flex-row rounded-xl bg-laranja-200 p-1 ">
-                  <Text className="text-white ">Status: </Text>
-                  <Text
-                    className={`${
-                      item.status == "Processando"
-                        ? "text-red-900"
-                        : "text-green-600"
-                    } font-bold`}
-                  >
-                    {item.status}
-                  </Text>
+                  <View className="flex-row rounded-xl bg-laranja-100 p-1 ">
+                    <Text className="text-white ">Status: </Text>
+                    <Text
+                      className={`${
+                        item.status == "Processando"
+                          ? "text-red-900"
+                          : "text-green-600"
+                      } font-bold`}
+                    >
+                      {item.status}
+                    </Text>
+                  </View>
                 </View>
               </View>
+            </View>
+            <View>
+              <TouchableOpacity>
+                <View className="bg-laranja-100 h-full justify-center px-4 rounded-r-lg">
+                  <AntDesign name="edit" color={colors.white} size={20} />
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
         ))}

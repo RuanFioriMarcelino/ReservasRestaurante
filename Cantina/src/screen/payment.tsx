@@ -20,6 +20,7 @@ import {
   deleteDoc,
   doc,
 } from "../config/firebaseconfig";
+import { StatusBar } from "expo-status-bar";
 
 export default function Payment({ route, navigation }: any) {
   const { orderDetails, total } = route.params;
@@ -114,39 +115,39 @@ export default function Payment({ route, navigation }: any) {
             </View>
           )}
         </View>
-
-        <Modal
-          transparent={true}
-          visible={modalVisible}
-          animationType="slide"
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>
-                Confirma o pagamento com {selectedPayment}?
-              </Text>
-              <View className="w-full gap-4">
-                <Button
-                  title="Confirmar"
-                  textColor={colors.white}
-                  bgcolor={colors.laranja[200]}
-                  onPress={() => {
-                    cadOrder();
-                    setModalVisible(false);
-                  }}
-                />
-                <Button
-                  title="Cancelar"
-                  textColor={colors.white}
-                  bgcolor={colors.laranja[100]}
-                  onPress={() => setModalVisible(false)}
-                />
-              </View>
+      </SafeAreaView>
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <StatusBar backgroundColor="rgba(0, 0, 0, 0.5)" />
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>
+              Confirma o pagamento com {selectedPayment}?
+            </Text>
+            <View className="w-full gap-4">
+              <Button
+                title="Confirmar"
+                textColor={colors.white}
+                bgcolor={colors.laranja[200]}
+                onPress={() => {
+                  cadOrder();
+                  setModalVisible(false);
+                }}
+              />
+              <Button
+                title="Cancelar"
+                textColor={colors.white}
+                bgcolor={colors.laranja[100]}
+                onPress={() => setModalVisible(false)}
+              />
             </View>
           </View>
-        </Modal>
-      </SafeAreaView>
+        </View>
+      </Modal>
     </>
   );
 }
