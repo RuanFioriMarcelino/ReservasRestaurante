@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#e0e0e0",
     borderRadius: 25,
     marginBottom: 20,
+    marginTop: 50,
     justifyContent: "flex-end",
     padding: 10,
   },
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc",
     borderRadius: 75,
     position: "absolute",
-    bottom: 50,
+    bottom: 100,
     alignSelf: "center",
   },
   textContainer: {

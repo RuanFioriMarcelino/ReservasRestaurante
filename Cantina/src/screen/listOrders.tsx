@@ -71,8 +71,8 @@ export default function ListOrders() {
   const fetchFoods = async () => {
     const productQuantities = new Map();
 
-    for (const item of ordersList) {
-      item.orderDetails.forEach((productId) => {
+    for (const order of ordersList) {
+      order.orderDetails.forEach((productId) => {
         if (productQuantities.has(productId)) {
           productQuantities.set(
             productId,
@@ -93,11 +93,20 @@ export default function ListOrders() {
 
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach((doc) => {
-        allFoods.push({
-          ...doc.data(), // Asegure-se de que todos os campos estão incluídos
-          id: doc.id,
-          quantity,
-        } as Foods);
+        // Encontre o pedido correspondente
+        const order = ordersList.find((order) =>
+          order.orderDetails.includes(productId)
+        );
+
+        if (order) {
+          allFoods.push({
+            ...doc.data(), // Inclui todos os campos do produto
+            id: doc.id,
+            quantity,
+            status: order.status, // Adiciona o status do pedido
+            addedAt: order.addedAt, // Adiciona o addedAt do pedido
+          } as Foods);
+        }
       });
     }
 
@@ -133,6 +142,7 @@ export default function ListOrders() {
     }
     return "";
   }
+  console.log("Lista de comidas: ", ordersList);
 
   return (
     <SafeAreaView className="flex-1">
