@@ -15,7 +15,7 @@ export default function ModalOverlay({
     <Modal
       transparent={true}
       visible={visible}
-      animationType="slide"
+      animationType="fade"
       onRequestClose={onRequestClose}
     >
       <StatusBar backgroundColor="rgba(0, 0, 0, 0.5)" />

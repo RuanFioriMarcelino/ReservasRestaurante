@@ -84,15 +84,16 @@ export default function ListOrders() {
         );
         return [];
       }
-
-      return order.orderDetails.map((id, index) => ({
-        productId: id,
+      return order.orderDetails.map((detail) => ({
+        productId: detail.id,
         orderId: order.id,
         addedAt: order.addedAt,
         paymentMethod: order.paymentMethod,
-        observation: order.orderDetails[index] || "", // Access by index
+        observation: detail.observation || "",
       }));
     });
+
+    console.log("Order Product Details:", orderProductDetails);
 
     const matchedFoods = orderProductDetails
       .map((detail) => {
@@ -100,6 +101,8 @@ export default function ListOrders() {
         return food ? { ...food, ...detail } : null;
       })
       .filter((item) => item !== null);
+
+    console.log("Matched Foods:", matchedFoods);
 
     setDetailedFoods(matchedFoods);
   }, [ordersList, foods]);
@@ -164,8 +167,7 @@ export default function ListOrders() {
                       {item.name}
                     </Text>
                     <Text className="text-black">
-                      {item.observation || "Sem observações"} // Display
-                      observation
+                      {item.observation || "Sem observações"}
                     </Text>
                     <Text className="text-laranja-100">R$ {item.value}</Text>
                   </View>

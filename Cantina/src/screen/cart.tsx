@@ -298,10 +298,10 @@ export default function Cart({ navigation }: any) {
               textColor={colors.white}
               onPress={() => {
                 navigation.navigate("Payment", {
-                  orderDetails: [
-                    foods.map((item) => item.id),
-                    foods.map((item) => item.observation),
-                  ],
+                  orderDetails: foods.map((item) => ({
+                    id: item.id,
+                    observation: item.observation,
+                  })),
                   total: sum,
                 });
               }}
@@ -310,7 +310,6 @@ export default function Cart({ navigation }: any) {
         )}
       </SafeAreaView>
 
-      {/* Modal for editing observation */}
       <ModalOverlay
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}

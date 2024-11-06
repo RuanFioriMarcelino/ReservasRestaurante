@@ -19,8 +19,13 @@ import {
   deleteDoc,
   doc,
 } from "../config/firebaseconfig";
-import { StatusBar } from "expo-status-bar";
+
 import ModalOverlay from "../components/modal";
+
+interface Detail {
+  id: string;
+  observation: string;
+}
 
 export default function Payment({ route, navigation }: any) {
   const { orderDetails, total } = route.params;
@@ -43,7 +48,6 @@ export default function Payment({ route, navigation }: any) {
     try {
       if (!user) return;
 
-      // Use flattenedOrderDetails instead of orderDetails
       const orderCollectionRef = collection(database, "orders");
       await addDoc(orderCollectionRef, {
         addedAt: new Date(),
@@ -54,7 +58,12 @@ export default function Payment({ route, navigation }: any) {
         status: "Processando",
       });
       console.log("Pedido registrado com sucesso!");
-      delCart(orderDetails);
+
+      const productIds = flattenedOrderDetails.map(
+        (detail: Detail) => detail.id
+      );
+      delCart(productIds);
+
       Alert.alert("Pedido", "Seu pedido foi feito com sucesso!", [
         {
           onPress: () => navigation.navigate("Cardapio"),
@@ -63,15 +72,15 @@ export default function Payment({ route, navigation }: any) {
     } catch (error) {
       console.error("Erro ao registrar pedido: ", error);
     }
-  };
-  async function delCart(ids: any) {
-    if (!user) return;
-    console.log(ids);
-    for (const i in ids) {
-      const taskDocRef = doc(database, "cart", `${user}`, "data", `${ids[i]}`);
-      await deleteDoc(taskDocRef);
+    async function delCart(ids: string[]) {
+      if (!user) return;
+      console.log("del: ", ids);
+      for (const id of ids) {
+        const taskDocRef = doc(database, "cart", user, "data", id);
+        await deleteDoc(taskDocRef);
+      }
     }
-  }
+  };
 
   return (
     <>
