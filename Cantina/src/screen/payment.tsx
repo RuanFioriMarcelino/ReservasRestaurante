@@ -26,6 +26,8 @@ export default function Payment({ route, navigation }: any) {
   const { orderDetails, total } = route.params;
   const user = auth.currentUser?.uid;
 
+  console.log("objeto: ", orderDetails);
+
   const [payment, setPayment] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");
@@ -35,14 +37,18 @@ export default function Payment({ route, navigation }: any) {
     setModalVisible(true);
   };
 
+  const flattenedOrderDetails = orderDetails.flat();
+
   const cadOrder = async () => {
     try {
       if (!user) return;
+
+      // Use flattenedOrderDetails instead of orderDetails
       const orderCollectionRef = collection(database, "orders");
       await addDoc(orderCollectionRef, {
         addedAt: new Date(),
         user,
-        orderDetails,
+        orderDetails: flattenedOrderDetails,
         total,
         paymentMethod: selectedPayment,
         status: "Processando",
@@ -58,7 +64,6 @@ export default function Payment({ route, navigation }: any) {
       console.error("Erro ao registrar pedido: ", error);
     }
   };
-
   async function delCart(ids: any) {
     if (!user) return;
     console.log(ids);

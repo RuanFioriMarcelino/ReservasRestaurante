@@ -1,5 +1,5 @@
 import { Modal, StyleSheet } from "react-native";
-import React, { ReactNode } from "react";
+import { ReactNode } from "react";
 import { StatusBar } from "expo-status-bar";
 
 export default function ModalOverlay({

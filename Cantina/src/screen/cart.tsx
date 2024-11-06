@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   ScrollView,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   StyleSheet,
@@ -24,14 +25,15 @@ import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
 import { Button } from "../components/button";
 import { Loading } from "../components/loading";
-import ModalOverlay from "../components/modal";
 import SkeletonLoader from "../components/skeletonLoader";
+import ModalOverlay from "../components/modal";
 
 interface ProductsCart {
   id: string;
   addedAt: string;
   quantity: number;
   foodId: string;
+  observation: string;
 }
 
 interface Foods {
@@ -43,6 +45,7 @@ interface Foods {
   order: number;
   quantity: number;
   idCart: string;
+  observation: string;
 }
 
 export default function Cart({ navigation }: any) {
@@ -51,6 +54,8 @@ export default function Cart({ navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [currentObservation, setCurrentObservation] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState("");
 
   const user = auth.currentUser;
   const userUID = user?.uid.toString();
@@ -99,6 +104,7 @@ export default function Cart({ navigation }: any) {
           id: docSnap.id,
           idCart: item.id,
           quantity: item.quantity,
+          observation: item.observation,
         });
       } else {
         console.log("Nenhum documento encontrado!");
@@ -130,6 +136,7 @@ export default function Cart({ navigation }: any) {
     await deleteDoc(taskDocRef);
     setProductsCart((prev) => prev.filter((item) => item.id !== id));
   }
+
   const editTask = async (id: string, operation: number, quantity: number) => {
     const qtt = quantity + operation;
     const taskdocRef = doc(database, "cart", `${userUID}`, "data", id);
@@ -138,7 +145,9 @@ export default function Cart({ navigation }: any) {
     });
   };
 
-  const handleObs = () => {
+  const handleObs = (productId: string, observation: string) => {
+    setSelectedProductId(productId);
+    setCurrentObservation(observation);
     setModalVisible(true);
   };
 
@@ -197,7 +206,9 @@ export default function Cart({ navigation }: any) {
                       <TouchableOpacity
                         activeOpacity={0.5}
                         className="mt-2"
-                        onPress={() => handleObs()}
+                        onPress={() =>
+                          handleObs(product.idCart, product.observation)
+                        }
                       >
                         <View className="flex flex-row items-center justify-center gap-2 rounded-xl bg-laranja-100 p-1">
                           <Feather
@@ -287,7 +298,10 @@ export default function Cart({ navigation }: any) {
               textColor={colors.white}
               onPress={() => {
                 navigation.navigate("Payment", {
-                  orderDetails: foods.map((item) => item.id),
+                  orderDetails: [
+                    foods.map((item) => item.id),
+                    foods.map((item) => item.observation),
+                  ],
                   total: sum,
                 });
               }}
@@ -295,28 +309,46 @@ export default function Cart({ navigation }: any) {
           </View>
         )}
       </SafeAreaView>
+
+      {/* Modal for editing observation */}
+      <ModalOverlay
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View className="flex-1 items-center justify-center  bg-black/50">
+          <View className=" gap-2 p-5 bg-slate-50 rounded-xl w-[300]">
+            <Text className="font-bold text-2xl mb-4">Editar Observação</Text>
+            <TextInput
+              className="h-10 border-gray-600 border-[1px] p-2 mb-4 w-full"
+              value={currentObservation}
+              onChangeText={setCurrentObservation}
+            />
+            <Button
+              title="Salvar"
+              bgcolor={colors.laranja[200]}
+              textColor={colors.white}
+              onPress={async () => {
+                if (!userUID || !selectedProductId) return;
+                await updateDoc(
+                  doc(database, "cart", userUID, "data", selectedProductId),
+                  {
+                    observation: currentObservation,
+                  }
+                );
+                setModalVisible(false);
+                fetchProductsCart();
+                fetchFoods();
+              }}
+            />
+            <Button
+              bgcolor={colors.laranja[100]}
+              textColor={colors.white}
+              title="Cancelar"
+              onPress={() => setModalVisible(false)}
+            />
+          </View>
+        </View>
+      </ModalOverlay>
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    width: 300,
-    padding: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  modalText: {
-    marginBottom: 15,
-    fontSize: 18,
-    textAlign: "center",
-  },
-});
