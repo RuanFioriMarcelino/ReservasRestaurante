@@ -5,12 +5,12 @@ import NavBar from "./components/nav";
 function App() {
   return (
     <>
-      <div className="bg-black_ h-screen ">
+      <div className="bg-stone-50  h-screen w-screen ">
         <div className=" border-orange-300 flex">
           <Drawer />
-          <div className="w-full p-6 ">
+          <div className="w-full py-6 px-4 ">
             <NavBar />
-            <div className="pt-8  ">
+            <div className="flex flex-col mt-7 ">
               <Outlet />
             </div>
           </div>

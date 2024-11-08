@@ -32,6 +32,7 @@ export default function AccountMenu() {
       .then(() => {
         console.log("Usuário desconectado!");
         alert("Usuário deconectado!");
+        localStorage.removeItem("button");
         window.location.reload();
       })
       .catch((error) => {
@@ -44,7 +45,6 @@ export default function AccountMenu() {
   return (
     <React.Fragment>
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
-        <Typography sx={{ minWidth: 100 }}>Contact</Typography>
         <Typography sx={{ minWidth: 100, display: "flex", gap: 1 }}>
           Olá <UserProfile />
         </Typography>

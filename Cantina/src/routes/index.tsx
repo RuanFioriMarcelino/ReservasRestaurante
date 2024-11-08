@@ -1,52 +1,85 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
-import { View } from "react-native";
+import { Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth"; // Importa a função para monitorar mudanças de autenticação
 
 import Home from "../screen/home";
-import Drinks from "../screen/drinks";
 import Cart from "../screen/cart";
-import Register from "../screen/Register";
+import Register from "../screen/register";
 import Login from "../screen/login";
 import Notification from "../screen/notification";
+import Payment from "../screen/payment";
+import ListOrders from "../screen/listOrders";
 import { auth } from "../config/firebaseconfig";
+import { SafeAreaView } from "react-native";
+import { ActivityIndicator } from "react-native";
+import { Loading } from "../components/loading";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export function MyStack() {
-  const user = auth.currentUser;
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (authUser: any) => {
+      setUser(authUser); // Define o usuário autenticado (ou null se não autenticado)
+      setIsLoading(false); // Define isLoading como false após obter o estado do usuário
+    });
+
+    return unsubscribe; // Desinscreve o listener quando o componente desmonta
+  }, []);
+
+  // Mostra uma tela de carregamento enquanto verifica o estado de autenticação
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-laranja-100 pt-8 justify-center items-center">
+        <Loading />
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
-      {!user ? (
+    <SafeAreaView className="flex-1 bg-laranja-100 ">
+      <Stack.Navigator initialRouteName={user ? "Home" : "Login"}>
+        {!user ? (
+          <>
+            <Stack.Screen
+              name="Register"
+              component={Register}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Login"
+              component={Login}
+              options={{ headerShown: false }}
+            />
+          </>
+        ) : null}
+
         <>
           <Stack.Screen
-            name="Register"
-            component={Register}
+            name="Home"
+            component={MyTab}
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="Login"
-            component={Login}
+            name="Notification"
+            component={Notification}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Payment"
+            component={Payment}
             options={{ headerShown: false }}
           />
         </>
-      ) : null}
-
-      <>
-        <Stack.Screen
-          name="Home"
-          component={MyTab}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Notification"
-          component={Notification}
-          options={{ headerShown: false }}
-        />
-      </>
-    </Stack.Navigator>
+      </Stack.Navigator>
+    </SafeAreaView>
   );
 }
 
@@ -68,7 +101,7 @@ export function MyTab() {
       <Tab.Screen
         options={{
           headerShown: false,
-          title: "Início",
+          title: "Cardápio",
           tabBarIcon: ({ focused }) => (
             <View
               style={{
@@ -84,7 +117,7 @@ export function MyTab() {
             </View>
           ),
         }}
-        name="Home"
+        name="Cardapio"
         component={Home}
       />
 
@@ -110,11 +143,10 @@ export function MyTab() {
         name="Cart"
         component={Cart}
       />
-
       <Tab.Screen
         options={{
           headerShown: false,
-          title: "Bebidas",
+          title: "Meus Pedidos",
           tabBarIcon: ({ focused }) => (
             <View
               style={{
@@ -126,16 +158,16 @@ export function MyTab() {
                   : colors.laranja[100],
               }}
             >
-              <MaterialCommunityIcons
-                name="cup"
+              <FontAwesome5
+                name="clipboard-list"
                 size={24}
                 color={colors.white}
               />
             </View>
           ),
         }}
-        name="Drinks"
-        component={Drinks}
+        name="ListOrders"
+        component={ListOrders}
       />
     </Tab.Navigator>
   );

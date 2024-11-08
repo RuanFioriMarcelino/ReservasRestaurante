@@ -1,15 +1,30 @@
-import React from "react";
+import { StyleSheet } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { MyStack } from "../routes";
-import { SafeAreaView, View } from "react-native";
 
 export default function App() {
   return (
-    <>
-      <StatusBar style="light" />
-      <SafeAreaView className="flex-1 bg-laranja-100 pt-8">
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <StatusBar animated={true} style="auto" />
         <MyStack />
       </SafeAreaView>
-    </>
+    </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#de6633",
+  },
+  buttonsContainer: {
+    padding: 10,
+  },
+  textStyle: {
+    textAlign: "center",
+    marginBottom: 8,
+  },
+});

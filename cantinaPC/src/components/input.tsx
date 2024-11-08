@@ -7,7 +7,6 @@ interface InputProps {
 }
 
 function Input({ icon, children }: InputProps) {
-  console.log("Icon: ", icon);
   return (
     <div className="w-full h-10 flex p-2 align-middle justify-center border border-laranja-200 rounded-lg bg-white">
       {children}

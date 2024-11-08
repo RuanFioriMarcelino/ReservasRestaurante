@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   View,
-  Image,
   Text,
   TouchableOpacity,
   KeyboardAvoidingView,
@@ -12,6 +11,7 @@ import { auth, onAuthStateChanged } from "../config/firebaseconfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 import { Button } from "../components/button";
+import { colors } from "../styles/colors";
 
 export default function Login({ navigation }: any) {
   const [email, setEmail] = useState("");
@@ -27,8 +27,6 @@ export default function Login({ navigation }: any) {
       );
 
       navigation.navigate("Home", { idUser: userCredential.user.uid });
-
-      console.log(userCredential.user.uid);
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       setError(true);
@@ -86,11 +84,21 @@ export default function Login({ navigation }: any) {
 
       {email === "" || password === "" ? (
         <View className="w-11/12 h-16 mt-8">
-          <Button title="Entrar" disabled />
+          <Button
+            title="Entrar"
+            disabled
+            bgcolor={colors.white}
+            textColor={colors.laranja[100]}
+          />
         </View>
       ) : (
         <View className="w-11/12 h-16 mt-8">
-          <Button title="Entrar" onPress={LoginUser} />
+          <Button
+            title="Entrar"
+            onPress={LoginUser}
+            bgcolor={colors.white}
+            textColor={colors.laranja[100]}
+          />
         </View>
       )}
 

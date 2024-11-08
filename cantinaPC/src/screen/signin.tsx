@@ -3,7 +3,6 @@ import { Button } from "../components/buttonLogin";
 import { Input } from "../components/input";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebaseconfig";
-import UserProfile from "../components/getUser";
 
 export default function Signin() {
   const [email, setEmail] = useState("");
@@ -21,15 +20,13 @@ export default function Signin() {
           // Usuário logado
           const user = userCredential.user;
           console.log("Usuário logado:", user);
+          localStorage.setItem("IsLoged", "true");
+          localStorage.setItem("button", "1");
+          window.location.replace("/");
         })
         .catch((error) => {
           console.error("Erro ao logar:", error);
         });
-      localStorage.setItem("IsLoged", "true");
-      localStorage.setItem("button", "1");
-      window.location.replace("/");
-
-      console.log("Credencial do cusuário: ", userCredential);
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       setError(true);
@@ -38,7 +35,7 @@ export default function Signin() {
 
   return (
     <div className="w-full h-screen items-center justify-center flex bg-black_">
-      <div className="bg-slate-800 flex-col flex gap-8 text-center w-1/4 px-8 py-10 rounded-xl  shadow-slate-800 shadow-lg">
+      <div className="bg-zinc-950 flex-col flex gap-8 text-center w-1/4 px-8 py-10 rounded-xl  shadow-slate-800 shadow-lg">
         <h1 className="text-white font-bold text-2xl">LOGIN</h1>
         <Input icon={null}>
           <Input.Field
@@ -63,7 +60,6 @@ export default function Signin() {
         )}
 
         <Button title="ENTRAR" onClick={LoginUser} />
-        <UserProfile />
       </div>
     </div>
   );

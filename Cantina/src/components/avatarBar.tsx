@@ -7,7 +7,7 @@ import { useGetUser } from "../components/getUser";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
 export default function AvatarBar() {
-  const usuario = useGetUser();
+  const userName = useGetUser();
   const navigation = useNavigation();
   const route = useRoute();
 
@@ -16,7 +16,7 @@ export default function AvatarBar() {
       <View className="flex-row items-center gap-4">
         <View className="w-16 h-16 rounded-full bg-white " />
         <FlatList
-          data={usuario}
+          data={userName}
           keyExtractor={(item) => item.toString()}
           renderItem={({ item }) => (
             <View>

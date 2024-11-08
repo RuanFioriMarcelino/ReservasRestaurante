@@ -6,6 +6,7 @@ import {
   House,
   StickyNote,
   Users,
+  CookingPot,
   Coffee,
   Wallet,
 } from "lucide-react";
@@ -23,7 +24,7 @@ export default function Drawer() {
     <div className="w-min h-full ">
       <div className="text-left pl-10 mt-4">
         <h1 className="text-yellow text-5xl  font-bold mb-2">Jô Pães</h1>
-        <p className="text-slate-100 uppercase">Doces e salgados</p>
+        <p className="text-black uppercase ">Doces e salgados</p>
       </div>
       <div className="grid gap-4 border-r-[1px] pr-2 h-full pt-10 border-gray-400 ">
         <Button
@@ -64,12 +65,20 @@ export default function Drawer() {
           onClick={() => sendRoute(5)}
           to="foods"
         >
+          <CookingPot size={18} />
+        </Button>
+        <Button
+          title="Bebidas"
+          isSelected={selectedButton === 6}
+          onClick={() => sendRoute(6)}
+          to="drinks"
+        >
           <Coffee size={18} />
         </Button>
         <Button
           title="Carteira"
-          isSelected={selectedButton === 6}
-          onClick={() => sendRoute(6)}
+          isSelected={selectedButton === 7}
+          onClick={() => sendRoute(7)}
           to="wallet"
         >
           <Wallet size={18} />

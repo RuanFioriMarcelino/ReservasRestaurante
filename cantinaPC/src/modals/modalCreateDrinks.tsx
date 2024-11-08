@@ -31,7 +31,7 @@ const style = {
   p: 4,
 };
 
-export default function ModalCreateFood() {
+export default function ModalCreateDrinks() {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -41,6 +41,7 @@ export default function ModalCreateFood() {
   const [genre, setGenre] = useState<string>("");
   const [imgURL, setImgURL] = useState<string>("");
   const [progress, setProgress] = useState(0);
+  const testData = [{ bgcolor: "#6a1b9a", completed: progress }];
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -91,19 +92,17 @@ export default function ModalCreateFood() {
         value: value,
         genre: genre,
         imgURL: imgURL,
-        category: "food",
+        category: "drink",
       });
-      handleClose();
+      /*      handleClose();
       setProgress(0);
       setGenre("");
       setImgURL("");
-      alert("Produto cadastrado com sucesso");
+      alert("Produto cadastrado com sucesso"); */
     } catch (error) {
       console.error("Error adding product: ", error);
     }
   };
-  const testData = [{ bgcolor: "#6a1b9a", completed: progress }];
-
   return (
     <div>
       <button
@@ -123,7 +122,7 @@ export default function ModalCreateFood() {
           <div className="flex justify-around">
             <form onSubmit={handleSubmit} className="w-1/2 gap-3 grid">
               <h1 className="text-yellow font-bold text-xl uppercase text-center mb-4">
-                Cadastrar nova comida
+                Cadastrar nova Bebida
               </h1>
               <Input icon={null}>
                 <Input.Field
@@ -158,9 +157,9 @@ export default function ModalCreateFood() {
                   }
                 >
                   <option value="">Selecione um gênero</option>
-                  <option value="almoco">Almoço</option>
-                  <option value="marmitex">Marmitex</option>
-                  <option value="bebida">Bebida</option>
+                  <option value="refrigerante">Refrigerante</option>
+                  <option value="agua">Água</option>
+                  <option value="suco">Suco</option>
                 </select>
               </Input>
 

@@ -1,5 +1,5 @@
 export const colors = { 
-    black_: '#727272',
+    white: '#FFFFFF',
     yellow: '#F1A804',
-    white: '#FDFDFD'
+  
 }
