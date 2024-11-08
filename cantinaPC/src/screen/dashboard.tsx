@@ -1,21 +1,17 @@
-import Card from "../components/cards";
+import Card from "../components/card";
 import UserProfile from "../components/getUser";
 import Icon1 from "../assets/IconOrder.png";
 import Icon2 from "../assets/iconDelivered.png";
 import Icon3 from "../assets//IconOrderCancel.png";
 import Icon4 from "../assets/IconOrderReceita.png";
 import GetTotalOrders from "../components/getTotalOrders";
+import GetTotaValue from "../components/getTotalValue";
 
-type Props = {
-  totalOrders: number;
-  totalDeliveries: number;
-  totalCanceled: number;
-  totalRevenue: number;
-};
-
-export function Dashboard({ totalOrders: propTotalOrders }: Props) {
+export function Dashboard() {
   const ordersArray = GetTotalOrders();
-  const localTotalOrders = ordersArray.length; // Get the number of orders
+  const totalValue = GetTotaValue();
+  const localTotalOrders = ordersArray.length; // Get the string of orders
+  const a = 0;
 
   return (
     <div>
@@ -27,18 +23,18 @@ export function Dashboard({ totalOrders: propTotalOrders }: Props) {
         </span>
         . Bem Vindo ao Jô Pães Dashboard!
       </p>
-      <div className="my-6 flex justify-between">
-        <Card value={localTotalOrders} title="Total de pedidos">
-          {<img src={Icon1} />}
+      <div className="my-6 grid grid-cols-1 lg:grid-cols-4 gap-6 ">
+        <Card value={`${localTotalOrders}`} title="Total de pedidos">
+          {<img src={Icon1} width="70px" height="70px" />}
         </Card>
-        <Card value={localTotalOrders} title="Total entregue">
-          {<img src={Icon2} />}
+        <Card value={`${a}`} title="Total entregue">
+          {<img src={Icon2} width="70px" height="70px" />}
         </Card>
-        <Card value={localTotalOrders} title="Total cancelado">
-          {<img src={Icon3} />}
+        <Card value={`${a}`} title="Total cancelado">
+          {<img src={Icon3} width="70px" height="70px" />}
         </Card>
-        <Card value={localTotalOrders} title="Receita total">
-          {<img src={Icon4} />}
+        <Card value={"R$ " + totalValue} title="Receita total">
+          {<img src={Icon4} width="70px" height="70px" />}
         </Card>
       </div>
     </div>

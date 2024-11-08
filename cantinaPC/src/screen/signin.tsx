@@ -27,8 +27,6 @@ export default function Signin() {
         .catch((error) => {
           console.error("Erro ao logar:", error);
         });
-
-      console.log("Credencial do cusuário: ", userCredential);
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       setError(true);

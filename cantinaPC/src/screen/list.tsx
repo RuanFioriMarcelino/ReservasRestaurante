@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { auth, database } from "../config/firebaseconfig";
+import { database } from "../config/firebaseconfig";
 
 interface OrdersList {
   id: string;
-  addedAt: string; // Certifique-se de que o tipo é correto
-  orderDetails: any[]; // Defina o tipo correto aqui
+  addedAt: string;
+  orderDetails: any[];
   paymentMethod: string;
   total: string;
   observation: string;
+  user: string;
+  userName: string;
 }
 
 interface Foods {
@@ -27,28 +29,39 @@ export function List() {
   const [foods, setFoods] = useState<Foods[]>([]);
   const [detailedFoods, setDetailedFoods] = useState<any[]>([]);
 
+  const fetchUserNameById = async (userId: string): Promise<string> => {
+    const userCollection = collection(database, "user");
+    const userQuery = query(userCollection, where("idUser", "==", userId));
+    const userDoc = await getDocs(userQuery);
+
+    if (!userDoc.empty) {
+      const userData = userDoc.docs[0].data();
+      return userData.name;
+    }
+    return "Usuário desconhecido";
+  };
+
   useEffect(() => {
     const fetchOrders = async () => {
-      const user = auth.currentUser?.uid;
-      const q = query(
-        collection(database, "orders"),
-        where("user", "==", `${user}`)
-      );
-      const querySnapshot = await getDocs(q);
+      const ordersCollection = collection(database, "orders");
+      const querySnapshot = await getDocs(ordersCollection);
       const list: OrdersList[] = [];
 
-      querySnapshot.forEach((doc) => {
-        list.push({ ...doc.data(), id: doc.id } as OrdersList);
-      });
+      for (const doc of querySnapshot.docs) {
+        const orderData = doc.data();
+        const userName = await fetchUserNameById(orderData.user);
+        list.push({ ...orderData, id: doc.id, userName } as OrdersList);
+      }
       setOrdersList(list);
     };
+
     fetchOrders();
   }, []);
 
   useEffect(() => {
     const fetchFoods = async () => {
-      const q = query(collection(database, "products"));
-      const querySnapshot = await getDocs(q);
+      const productsCollection = collection(database, "products");
+      const querySnapshot = await getDocs(productsCollection);
       const list: Foods[] = [];
 
       querySnapshot.forEach((doc) => {
@@ -56,6 +69,7 @@ export function List() {
       });
       setFoods(list);
     };
+
     fetchFoods();
   }, []);
 
@@ -87,7 +101,7 @@ export function List() {
   }, [ordersList, foods]);
 
   const formatDateTime = (timestamp: any) => {
-    const date = new Date(timestamp); // Ajuste aqui se necessário
+    const date = new Date(timestamp);
     return date.toLocaleString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
@@ -95,31 +109,28 @@ export function List() {
   };
 
   return (
-    <div className="h-full flex flex-col">
-      <h1>essa é a lista</h1>
-      <div className="flex-1 w-full bg-white shadow-sm shadow-black rounded-lg text-center p-2 flex flex-col gap-2">
+    <div className="h-full flex flex-col w-full">
+      <div className="p-2 flex flex-col gap-2 shadow-sm shadow-gray-300 bg-white rounded-sm text-center">
         <h3>Horario</h3>
-        <div className="border-b border-gray-300 w-full" />
-        <div className="flex-1 flex overflow-y-auto">
+
+        <div className="border-b border-gray-300 flex" />
+
+        <div className=" gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[550px] pr-2">
           {ordersList.map((order) => (
-            <div key={order.id} className="bg-yellow/30 rounded-sm w-60 m-2">
-              <p className="text-gray-700 font-medium text-xs -mt-[10px] ml-2 absolute">
-                Pedido #{order.id}
-              </p>
-              <div className="bg-yellow flex flex-row gap-2 p-2 rounded-t-sm">
+            <div key={order.id} className="bg-yellow/30 rounded-md w-auto">
+              <div className="bg-yellow flex flex-row gap-2 p-2 rounded-t-md">
                 <img
-                  className="w-12 h-14 rounded-sm bg-gray-300 items-center justify-center flex border-white border-2 text-xs"
-                  src="" // Ajuste para a URL correta
+                  className="w-14 h-[70px] rounded-sm bg-gray-300 items-center justify-center flex border-white border-2 text-xs"
+                  src=""
                   alt="imagem do produto"
                   width="40px"
                 />
-
                 <div className="text-start">
-                  <p className="text-white font-medium leading-5">Joana</p>
-                  <p className="text-sm font-normal leading-5">
+                  <p className=" text-xl font-medium ">{order.userName}</p>
+                  <p className="text-sm font-normal text-white  bg-black/50 w-min px-1 rounded-md">
                     {order.paymentMethod}
                   </p>
-                  <p className="text-sm font-normal leading-4 lea">
+                  <p className="text-sm font-normal text-white ">
                     Entregar:{" "}
                     <span className="font-bold text-xs">
                       {formatDateTime(order.addedAt)}
@@ -127,31 +138,33 @@ export function List() {
                   </p>
                 </div>
               </div>
-
-              <div className="p-2 text-start">
-                {detailedFoods
-                  .filter((food) => food.orderId === order.id)
-                  .map((item) => (
-                    <div key={item.productId} className="flex-row">
-                      <div className="">
+              <div className="p-2 text-start justify-between flex flex-col h-56">
+                <div>
+                  {detailedFoods
+                    .filter((food) => food.orderId === order.id)
+                    .map((item) => (
+                      <div key={item.productId} className="flex-row">
                         <p className="text-base font-bold">
                           {item.name} -{" "}
                           <span className="font-normal">
                             {item.observation || "Sem observações"}
                           </span>
                         </p>
-
                         <p className="text-laranja-100">R$ {item.value}</p>
                       </div>
-                    </div>
-                  ))}
-                Total:{" "}
-                <span className="text-laranja-100 font-bold">
-                  R$ {order.total}
-                </span>
-                <button className="bg-yellow w-full h-9 rounded-sm">
-                  <p className="text-white font-medium">Aceitar</p>
-                </button>
+                    ))}
+                </div>
+                <div className="border-t border-yellow">
+                  Total:{" "}
+                  <span className="text-laranja-100 font-bold">
+                    R$ {order.total}
+                  </span>
+                  <div>
+                    <button className="w-full text-white uppercase font-regular bg-yellow p-2 rounded-lg hover:bg-opacity-65 hover:scale-y-105 transition-all duration-75 ease-in">
+                      <p className="text-white font-medium">Aceitar</p>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}

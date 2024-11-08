@@ -2,15 +2,15 @@ import { MoveUp } from "lucide-react";
 import { ReactNode } from "react";
 
 type Props = {
-  value: number;
+  value: string;
   children?: ReactNode;
   title: string;
 };
 
 export default function Card({ value, title, children }: Props) {
   return (
-    <div className="bg-white gap-6 w-min flex items-center justify-center py-4 px-9 rounded-lg shadow shadow-black/20 cursor-pointer">
-      <div className="w-16">{children}</div>
+    <div className="bg-white gap-6 flex items-center justify-start py-4 px-9 rounded-lg shadow shadow-black/20 cursor-pointer">
+      <div className="">{children}</div>
 
       <span>
         <p className="text-3xl font-bold text-slate-700">{value}</p>

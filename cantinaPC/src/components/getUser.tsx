@@ -9,7 +9,6 @@ const UserProfile = () => {
 
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        console.log("UID:", user.uid);
         if (!user.displayName) {
           updateProfile(user, {
             displayName: userName,
@@ -26,10 +25,10 @@ const UserProfile = () => {
         }
 
         user.providerData.forEach((profile) => {
-          console.log("Sign-in provider: " + profile.providerId);
+          /*     console.log("Sign-in provider: " + profile.providerId);
           console.log("Provider-specific UID: " + profile.uid);
           console.log("Name: " + profile.displayName);
-          console.log("Email: " + profile.email);
+          console.log("Email: " + profile.email); */
           setUserName(profile.displayName);
         });
       } else {
