@@ -8,7 +8,7 @@ import {
 } from "firebase/firestore";
 import { database } from "../config/firebaseconfig";
 import { useEffect, useState } from "react";
-import { Button } from "./buttonCard";
+import { Button } from "./buttonFood";
 import { Trash2 } from "lucide-react";
 import BasicModal from "../modals/modalUpdateFood";
 
@@ -28,7 +28,6 @@ type Props = {
 
 export default function CardProduct(type: Props) {
   const [Products, setProducts] = useState<Products[]>([]);
-  const [scroll, setScroll] = useState(false);
 
   useEffect(() => {
     const productCollection = query(
@@ -41,10 +40,7 @@ export default function CardProduct(type: Props) {
         list.push({ ...doc.data(), id: doc.id } as Products);
       });
       setProducts(list);
-      if (list.length <= 4) {
-        setScroll(false);
-        console.log("é falso: ", list.length);
-      }
+
       console.log(list.map((list) => list.name));
     });
 

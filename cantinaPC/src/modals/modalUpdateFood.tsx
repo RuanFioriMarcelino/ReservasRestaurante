@@ -4,7 +4,7 @@ import Box from "@mui/material/Box";
 
 import Modal from "@mui/material/Modal";
 
-import { Button } from "../components/buttonCard";
+import { Button } from "../components/buttonFood";
 import { Pencil } from "lucide-react";
 import { Input } from "../components/input";
 

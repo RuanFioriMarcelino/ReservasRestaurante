@@ -9,6 +9,7 @@ import {
   CookingPot,
   Coffee,
   Wallet,
+  CalendarDays,
 } from "lucide-react";
 
 export default function Drawer() {
@@ -52,33 +53,41 @@ export default function Drawer() {
           <StickyNote size={18} />
         </Button>
         <Button
-          title="Cliente"
+          title="Calendário"
           isSelected={selectedButton === 4}
           onClick={() => sendRoute(4)}
+          to="calendar"
+        >
+          <CalendarDays size={18} />
+        </Button>
+        <Button
+          title="Cliente"
+          isSelected={selectedButton === 5}
+          onClick={() => sendRoute(5)}
           to="client"
         >
           <Users size={18} />
         </Button>
         <Button
           title="Comidas"
-          isSelected={selectedButton === 5}
-          onClick={() => sendRoute(5)}
+          isSelected={selectedButton === 6}
+          onClick={() => sendRoute(6)}
           to="foods"
         >
           <CookingPot size={18} />
         </Button>
         <Button
           title="Bebidas"
-          isSelected={selectedButton === 6}
-          onClick={() => sendRoute(6)}
+          isSelected={selectedButton === 7}
+          onClick={() => sendRoute(7)}
           to="drinks"
         >
           <Coffee size={18} />
         </Button>
         <Button
           title="Carteira"
-          isSelected={selectedButton === 7}
-          onClick={() => sendRoute(7)}
+          isSelected={selectedButton === 8}
+          onClick={() => sendRoute(8)}
           to="wallet"
         >
           <Wallet size={18} />

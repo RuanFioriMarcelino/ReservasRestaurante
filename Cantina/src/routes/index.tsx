@@ -8,7 +8,7 @@ import { onAuthStateChanged } from "firebase/auth"; // Importa a função para m
 
 import Home from "../screen/home";
 import Cart from "../screen/cart";
-import Register from "../screen/register";
+import Register from "../screen/Register";
 import Login from "../screen/login";
 import Notification from "../screen/notification";
 import Payment from "../screen/payment";

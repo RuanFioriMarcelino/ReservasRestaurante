@@ -7,7 +7,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Modal,
   TextInput,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -24,10 +23,10 @@ import { signOut } from "firebase/auth";
 import AvatarBar from "../components/avatarBar";
 import SkeletonLoaderHome from "../components/skeletonLoaderHome";
 import { colors } from "../styles/colors";
-import { StatusBar } from "expo-status-bar";
 import ModalOverlay from "../components/modal";
 import { Button } from "../components/button";
 import { Loading } from "../components/loading";
+import { toZonedTime } from "date-fns-tz";
 
 interface Foods {
   id: string;
@@ -37,6 +36,7 @@ interface Foods {
   value: string;
   imgURL: string;
   cart: boolean;
+  isVisible: boolean;
 }
 
 interface ProductsCart {
@@ -84,20 +84,56 @@ export default function Home() {
   }, [userUID]);
 
   useEffect(() => {
+    const updateVisibility = () => {
+      const timeZone = "America/Sao_Paulo";
+      const now = new Date();
+      const zonedTime = toZonedTime(now, timeZone);
+      const currentHour = zonedTime.getHours();
+      const currentMinute = zonedTime.getMinutes();
+
+      setFoods((prevFoods) =>
+        prevFoods.map((food) => ({
+          ...food,
+          isVisible:
+            currentHour < 21 || (currentHour === 21 && currentMinute < 51)
+              ? true
+              : false, // Ensures it switches to false after 11:00 AM
+        }))
+      );
+    };
+
     const productCollection = query(
       collection(database, "products"),
-      where("category", "==", "food")
+      where("category", "==", "food"),
+      where("sale", "==", true)
     );
 
     const unsubscribe = onSnapshot(productCollection, (querySnapshot) => {
-      const list: Foods[] = querySnapshot.docs.map(
-        (doc) => ({ ...doc.data(), id: doc.id } as Foods)
-      );
+      const list: Foods[] = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          name: data.name || "", // Provide default values or handle missing fields
+          description: data.description || "",
+          genre: data.genre || "",
+          value: data.value || "",
+          imgURL: data.imgURL || "",
+          cart: data.cart || false,
+          isVisible: data.isVisible || false,
+        } as Foods;
+      });
+
       setFoods(list);
       setLoading(false);
+      updateVisibility(); // Initial visibility check
     });
 
-    return () => unsubscribe();
+    const interval = setInterval(updateVisibility, 60000); // Update every minute
+
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
   }, []);
 
   const openModal = (food: Foods) => {
@@ -112,7 +148,7 @@ export default function Home() {
   };
 
   const addForCart = async () => {
-    if (!selectedFood || !userUID) return;
+    if (!selectedFood || !userUID || !selectedFood.isVisible) return;
 
     try {
       const foodDoc = doc(database, "cart", userUID, "data", selectedFood.id);
@@ -145,7 +181,6 @@ export default function Home() {
         Cardápio dia {formattedDate}
       </Text>
 
-      {/* Botão de Deslogar */}
       <TouchableOpacity
         onPress={handleSignOut}
         className="bg-red-500 p-2 rounded-full m-4"
@@ -155,15 +190,13 @@ export default function Home() {
       </TouchableOpacity>
 
       <ScrollView
-        style={{ flex: 1 }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           flexDirection: "row",
           flexWrap: "wrap",
           gap: 10,
           justifyContent: "center",
-          paddingTop: 10,
-          height: "100%",
+          paddingBottom: 20,
         }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -176,9 +209,13 @@ export default function Home() {
           : foods.map((food) => (
               <View
                 key={food.id}
-                className="w-[45%] h-52 p-2 justify-end rounded-[25] bg-slate-50 mt-20 shadow-lg shadow-slate-950"
+                className="w-[45%] h-52 p-2 justify-end rounded-[25] mt-20 shadow-lg shadow-slate-950 last:mb-10"
+                style={{
+                  backgroundColor: food.isVisible ? "white" : "#f0f0f0",
+                  opacity: food.isVisible ? 1 : 0.5,
+                }}
               >
-                <View className="relative items-center">
+                <View className="relative items-center ">
                   {food.imgURL ? (
                     <Image
                       source={{
@@ -208,12 +245,20 @@ export default function Home() {
                       {food.name}
                     </Text>
 
-                    <Text className="font-light h-10  " numberOfLines={2}>
+                    <Text className="font-light h-10" numberOfLines={2}>
                       {food.description}
                     </Text>
                     <View className="flex flex-row gap-2">
-                      <View className="bg-laranja-200 px-2 py-1 rounded-xl">
-                        <TouchableOpacity onPress={() => openModal(food)}>
+                      <View
+                        className="bg-laranja-200 px-2 py-1 rounded-xl"
+                        style={{
+                          backgroundColor: colors.laranja[200],
+                        }}
+                      >
+                        <TouchableOpacity
+                          onPress={() => food.isVisible && openModal(food)}
+                          disabled={!food.isVisible}
+                        >
                           <MaterialIcons
                             name="shopping-cart"
                             size={25}
