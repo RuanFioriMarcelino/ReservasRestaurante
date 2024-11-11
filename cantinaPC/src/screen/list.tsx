@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { database } from "../config/firebaseconfig";
-
 interface OrdersList {
   id: string;
   addedAt: string;
@@ -111,14 +110,19 @@ export function List() {
   return (
     <div className="h-full flex flex-col w-full">
       <div className="p-2 flex flex-col gap-2 shadow-sm shadow-gray-300 bg-white rounded-sm text-center">
-        <h3>Horario</h3>
+        <h3>Pedidos de Hoje</h3>
 
-        <div className="border-b border-gray-300 flex" />
+        <div className="border-b border-gray-400 flex" />
 
         <div className=" gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[550px] pr-2">
           {ordersList.map((order) => (
-            <div key={order.id} className="bg-yellow/30 rounded-md w-auto">
-              <div className="bg-yellow flex flex-row gap-2 p-2 rounded-t-md">
+            <div
+              key={order.id}
+              className={`rounded-md w-auto shadow-lg shadow-gray-300 ${order.paymentMethod != "Pix" ? "bg-gray-400/50" : "bg-yellow/50"}`}
+            >
+              <div
+                className={`flex flex-row gap-2 p-2 rounded-t-md ${order.paymentMethod != "Pix" ? "bg-gray-400" : "bg-yellow"}`}
+              >
                 <img
                   className="w-14 h-[70px] rounded-sm bg-gray-300 items-center justify-center flex border-white border-2 text-xs"
                   src=""
@@ -127,7 +131,7 @@ export function List() {
                 />
                 <div className="text-start">
                   <p className=" text-xl font-medium ">{order.userName}</p>
-                  <p className="text-sm font-normal text-white  bg-black/50 w-min px-1 rounded-md">
+                  <p className="text-sm font-normal text-white  bg-black/50 w-min px-2 rounded-md">
                     {order.paymentMethod}
                   </p>
                   <p className="text-sm font-normal text-white ">
@@ -154,13 +158,17 @@ export function List() {
                       </div>
                     ))}
                 </div>
-                <div className="border-t border-yellow">
+                <div
+                  className={` ${order.paymentMethod != "Pix" ? "border-gray-400 border-t" : "border-yellow border-t"}`}
+                >
                   Total:{" "}
                   <span className="text-laranja-100 font-bold">
                     R$ {order.total}
                   </span>
                   <div>
-                    <button className="w-full text-white uppercase font-regular bg-yellow p-2 rounded-lg hover:bg-opacity-65 hover:scale-y-105 transition-all duration-75 ease-in">
+                    <button
+                      className={`w-full text-white uppercase font-regular bg-gray-400 p-2 rounded-lg hover:bg-opacity-65 hover:scale-y-105 transition-all duration-75 ease-in ${order.paymentMethod != "Pix" ? "bg-gray-300" : "bg-yellow"}`}
+                    >
                       <p className="text-white font-medium">Aceitar</p>
                     </button>
                   </div>
