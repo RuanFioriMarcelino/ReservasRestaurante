@@ -31,8 +31,6 @@ export default function Payment({ route, navigation }: any) {
   const { orderDetails, total } = route.params;
   const user = auth.currentUser?.uid;
 
-  console.log("objeto: ", orderDetails);
-
   const [payment, setPayment] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");

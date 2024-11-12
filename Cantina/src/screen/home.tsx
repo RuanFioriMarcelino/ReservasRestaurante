@@ -95,7 +95,7 @@ export default function Home() {
         prevFoods.map((food) => ({
           ...food,
           isVisible:
-            currentHour < 21 || (currentHour === 21 && currentMinute < 51)
+            currentHour < 23 || (currentHour === 23 && currentMinute < 51)
               ? true
               : false, // Ensures it switches to false after 11:00 AM
         }))

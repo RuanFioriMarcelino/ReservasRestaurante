@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
+  Alert,
   Image,
   Modal,
   RefreshControl,
@@ -9,7 +10,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  StyleSheet,
 } from "react-native";
 import {
   collection,
@@ -56,6 +56,9 @@ export default function Cart({ navigation }: any) {
   const [modalVisible, setModalVisible] = useState(false);
   const [currentObservation, setCurrentObservation] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
+  const [selectedPickupTime, setSelectedPickupTime] = useState<string>("");
+
+  const [timeModalVisible, setTimeModalVisible] = useState(false);
 
   const user = auth.currentUser;
   const userUID = user?.uid.toString();
@@ -149,6 +152,34 @@ export default function Cart({ navigation }: any) {
     setSelectedProductId(productId);
     setCurrentObservation(observation);
     setModalVisible(true);
+  };
+
+  const handleFinalizeOrder = () => {
+    // Check if a valid pickup time is selected (between 11:30 and 13:00)
+    if (!selectedPickupTime) {
+      Alert.alert("Horário", "Por favor, selecione um horário para retirada.");
+      return;
+    }
+
+    const pickupTime = new Date(`2024-11-11T${selectedPickupTime}:00`);
+    const start = new Date("2024-11-11T11:30:00");
+    const end = new Date("2024-11-11T13:00:00");
+
+    if (pickupTime >= start && pickupTime <= end) {
+      navigation.navigate("Payment", {
+        orderDetails: foods.map((item) => ({
+          id: item.id,
+          observation: item.observation,
+        })),
+        total: sum,
+        pickupTime: selectedPickupTime,
+      });
+    } else {
+      Alert.alert(
+        "Horário incorreto!",
+        "O horário selecionado deve estar entre 11:30 e 13:00."
+      );
+    }
   };
 
   return (
@@ -291,24 +322,56 @@ export default function Cart({ navigation }: any) {
                 R$ {sum}
               </Text>
             </View>
+
+            {/* New button for selecting pickup time */}
+            <Button
+              title="SELECIONAR HORÁRIO PARA RETIRADA"
+              isLoading={false}
+              bgcolor={colors.laranja[100]}
+              textColor={colors.white}
+              onPress={() => setTimeModalVisible(true)}
+            />
+
             <Button
               title="FINALIZAR O PEDIDO"
               isLoading={false}
               bgcolor={colors.laranja[100]}
               textColor={colors.white}
-              onPress={() => {
-                navigation.navigate("Payment", {
-                  orderDetails: foods.map((item) => ({
-                    id: item.id,
-                    observation: item.observation,
-                  })),
-                  total: sum,
-                });
-              }}
+              onPress={handleFinalizeOrder}
             />
           </View>
         )}
       </SafeAreaView>
+
+      {/* Time selection modal */}
+      <ModalOverlay
+        visible={timeModalVisible}
+        onRequestClose={() => setTimeModalVisible(false)}
+      >
+        <View className="flex-1 justify-center items-center bg-black/50 ">
+          <View className="bg-slate-50 p-5 rounded-xl w-[300px]">
+            <Text className="font-bold text-2xl mb-4">Escolha o Horário</Text>
+            <TextInput
+              placeholder="Exemplo: 12:00"
+              value={selectedPickupTime}
+              onChangeText={setSelectedPickupTime}
+              className="h-10 border-gray-600 border-[1px] p-2 mb-4 w-full"
+            />
+            <Button
+              title="Confirmar"
+              bgcolor={colors.laranja[200]}
+              textColor={colors.white}
+              onPress={() => setTimeModalVisible(false)}
+            />
+            <Button
+              title="Cancelar"
+              bgcolor={colors.laranja[100]}
+              textColor={colors.white}
+              onPress={() => setTimeModalVisible(false)}
+            />
+          </View>
+        </View>
+      </ModalOverlay>
 
       <ModalOverlay
         visible={modalVisible}

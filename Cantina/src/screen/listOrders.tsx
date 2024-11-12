@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from "react";
 import AvatarBar from "../components/avatarBar";
 import { auth, collection, database } from "../config/firebaseconfig";
-import { getDocs, query, where } from "firebase/firestore";
+import { query, where, onSnapshot, getDocs } from "firebase/firestore";
 import { colors } from "../styles/colors";
 
 interface OrdersList {
@@ -20,6 +20,8 @@ interface OrdersList {
   paymentMethod: string;
   total: string;
   observation: string;
+  status: string;
+  pickupTime: string;
 }
 
 interface Foods {
@@ -39,21 +41,28 @@ export default function ListOrders() {
   const [detailedFoods, setDetailedFoods] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchOrders = async () => {
+  // Função para buscar os pedidos
+  const fetchOrders = () => {
     const user = auth.currentUser?.uid;
     const q = query(
       collection(database, "orders"),
       where("user", "==", `${user}`)
     );
-    const querySnapshot = await getDocs(q);
-    const list: OrdersList[] = [];
 
-    querySnapshot.forEach((doc) => {
-      list.push({ ...doc.data(), id: doc.id } as OrdersList);
+    // Usando onSnapshot() para escutar mudanças em tempo real
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const list: OrdersList[] = [];
+      querySnapshot.forEach((doc) => {
+        list.push({ ...doc.data(), id: doc.id } as OrdersList);
+      });
+      setOrdersList(list); // Atualiza a lista de pedidos
     });
-    setOrdersList(list);
+
+    // Retorna a função de desinscrição para limpar quando o componente for desmontado
+    return unsubscribe;
   };
 
+  // Refresh quando puxar a tela
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchOrders();
@@ -65,13 +74,18 @@ export default function ListOrders() {
       const q = query(collection(database, "products"));
       const querySnapshot = await getDocs(q);
       const list: Foods[] = [];
-
       querySnapshot.forEach((doc) => {
         list.push({ ...doc.data(), id: doc.id } as Foods);
       });
       setFoods(list);
     };
     fetchFoods();
+  }, []);
+
+  // Usar useEffect para escutar mudanças nos pedidos
+  useEffect(() => {
+    const unsubscribe = fetchOrders(); // Inicia o listener de pedidos
+    return () => unsubscribe(); // Limpa o listener quando o componente é desmontado
   }, []);
 
   useEffect(() => {
@@ -88,12 +102,11 @@ export default function ListOrders() {
         productId: detail.id,
         orderId: order.id,
         addedAt: order.addedAt,
+        pickupTime: detail.pickupTime,
         paymentMethod: order.paymentMethod,
         observation: detail.observation || "",
       }));
     });
-
-    console.log("Order Product Details:", orderProductDetails);
 
     const matchedFoods = orderProductDetails
       .map((detail) => {
@@ -102,13 +115,8 @@ export default function ListOrders() {
       })
       .filter((item) => item !== null);
 
-    console.log("Matched Foods:", matchedFoods);
-
     setDetailedFoods(matchedFoods);
   }, [ordersList, foods]);
-
-  console.log("Produtos detalhados: ", detailedFoods);
-  console.log("Orders data:", ordersList);
 
   const formatDateTime = (timestamp: any) => {
     const date = timestamp.toDate();
@@ -175,15 +183,23 @@ export default function ListOrders() {
               ))}
             <View className="w-full border-b my-2 border-gray-300"></View>
             <Text className="text-black">
-              Data:{" "}
+              Horário de Retirada:{" "}
               <Text className="text-laranja-100">
-                {formatDateTime(order.addedAt)}
+                {order.pickupTime
+                  ? formatDateTime(order.pickupTime)
+                  : "Indefinido"}
               </Text>
             </Text>
             <View className="flex flex-row items-center">
               <Text className="text-black">Método de Pagamento: </Text>
-              <View className="bg-laranja-100 rounded-lg px-1">
+              <View className="bg-gray-300 rounded-lg px-2">
                 <Text className="font-medium">{order.paymentMethod}</Text>
+              </View>
+            </View>
+            <View className="flex flex-row items-center">
+              <Text className="text-black">Status: </Text>
+              <View className="bg-gray-300 rounded-lg px-2">
+                <Text className="font-medium">{order.status}</Text>
               </View>
             </View>
             <Text className="text-black text-xl">
