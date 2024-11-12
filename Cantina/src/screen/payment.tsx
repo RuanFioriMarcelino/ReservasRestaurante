@@ -28,7 +28,7 @@ interface Detail {
 }
 
 export default function Payment({ route, navigation }: any) {
-  const { orderDetails, total } = route.params;
+  const { orderDetails, total, pickupTime } = route.params;
   const user = auth.currentUser?.uid;
 
   const [payment, setPayment] = useState("");
@@ -54,6 +54,7 @@ export default function Payment({ route, navigation }: any) {
         total,
         paymentMethod: selectedPayment,
         status: "Processando",
+        pickupTime,
       });
       console.log("Pedido registrado com sucesso!");
 
@@ -83,8 +84,8 @@ export default function Payment({ route, navigation }: any) {
   return (
     <>
       <AvatarBar />
-      <Text className="text-center text-laranja-200 font-bold text-2xl">
-        Formas de pagamento
+      <Text className="text-center text-laranja-200 font-bold text-2xl mt-2">
+        Pagamento
       </Text>
 
       <SafeAreaView className="flex-1 h-screen justify-center relative">
@@ -135,7 +136,8 @@ export default function Payment({ route, navigation }: any) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>
-              Confirma o pagamento com {selectedPayment}?
+              Pagamento com {selectedPayment} será efetuado no momento da
+              retirada. Deseja confirmar?
             </Text>
             <View className="w-full gap-4">
               <Button

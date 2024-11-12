@@ -1,5 +1,5 @@
 import { format, toZonedTime } from "date-fns-tz";
-import useFirestoreCollection from "../hook/getOrder";
+import useFirestoreCollection from "./getOrder";
 import { useEffect, useState } from "react";
 
 interface Orders {

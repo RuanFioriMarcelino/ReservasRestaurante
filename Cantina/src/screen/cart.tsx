@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Alert,
+  FlatList,
   Image,
   Modal,
   RefreshControl,
@@ -57,8 +58,22 @@ export default function Cart({ navigation }: any) {
   const [currentObservation, setCurrentObservation] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
   const [selectedPickupTime, setSelectedPickupTime] = useState<string>("");
-
   const [timeModalVisible, setTimeModalVisible] = useState(false);
+
+  const allowedTimes = [
+    "11:30",
+    "11:45",
+    "12:00",
+    "12:15",
+    "12:30",
+    "12:45",
+    "13:00",
+  ];
+
+  const handleSelectTime = (time: string) => {
+    setSelectedPickupTime(time);
+    setTimeModalVisible(false);
+  };
 
   const user = auth.currentUser;
   const userUID = user?.uid.toString();
@@ -323,7 +338,6 @@ export default function Cart({ navigation }: any) {
               </Text>
             </View>
 
-            {/* New button for selecting pickup time */}
             <Button
               title="SELECIONAR HORÁRIO PARA RETIRADA"
               isLoading={false}
@@ -342,36 +356,6 @@ export default function Cart({ navigation }: any) {
           </View>
         )}
       </SafeAreaView>
-
-      {/* Time selection modal */}
-      <ModalOverlay
-        visible={timeModalVisible}
-        onRequestClose={() => setTimeModalVisible(false)}
-      >
-        <View className="flex-1 justify-center items-center bg-black/50 ">
-          <View className="bg-slate-50 p-5 rounded-xl w-[300px]">
-            <Text className="font-bold text-2xl mb-4">Escolha o Horário</Text>
-            <TextInput
-              placeholder="Exemplo: 12:00"
-              value={selectedPickupTime}
-              onChangeText={setSelectedPickupTime}
-              className="h-10 border-gray-600 border-[1px] p-2 mb-4 w-full"
-            />
-            <Button
-              title="Confirmar"
-              bgcolor={colors.laranja[200]}
-              textColor={colors.white}
-              onPress={() => setTimeModalVisible(false)}
-            />
-            <Button
-              title="Cancelar"
-              bgcolor={colors.laranja[100]}
-              textColor={colors.white}
-              onPress={() => setTimeModalVisible(false)}
-            />
-          </View>
-        </View>
-      </ModalOverlay>
 
       <ModalOverlay
         visible={modalVisible}
@@ -407,6 +391,47 @@ export default function Cart({ navigation }: any) {
               textColor={colors.white}
               title="Cancelar"
               onPress={() => setModalVisible(false)}
+            />
+          </View>
+        </View>
+      </ModalOverlay>
+      <ModalOverlay
+        visible={timeModalVisible}
+        onRequestClose={() => setTimeModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            paddingHorizontal: 40,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }}
+        >
+          <View
+            style={{ backgroundColor: "#FFF", padding: 20, borderRadius: 10 }}
+          >
+            <Text style={{ fontSize: 18, marginBottom: 10 }}>
+              Escolha o Horário
+            </Text>
+            <FlatList
+              data={allowedTimes}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => handleSelectTime(item)}
+                  style={{ padding: 10, alignItems: "center" }}
+                >
+                  <Text className="text-lg border-b border-black w-full text-center py-1">
+                    {item}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+            <Button
+              title="Cancelar"
+              bgcolor={colors.laranja[100]}
+              textColor="#FFFFFF"
+              onPress={() => setTimeModalVisible(false)}
             />
           </View>
         </View>

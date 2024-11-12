@@ -95,7 +95,7 @@ export default function Home() {
         prevFoods.map((food) => ({
           ...food,
           isVisible:
-            currentHour < 23 || (currentHour === 23 && currentMinute < 51)
+            currentHour < 14 || (currentHour === 14 && currentMinute < 50)
               ? true
               : false, // Ensures it switches to false after 11:00 AM
         }))
@@ -113,7 +113,7 @@ export default function Home() {
         const data = doc.data();
         return {
           id: doc.id,
-          name: data.name || "", // Provide default values or handle missing fields
+          name: data.name || "",
           description: data.description || "",
           genre: data.genre || "",
           value: data.value || "",
@@ -125,10 +125,10 @@ export default function Home() {
 
       setFoods(list);
       setLoading(false);
-      updateVisibility(); // Initial visibility check
+      updateVisibility();
     });
 
-    const interval = setInterval(updateVisibility, 60000); // Update every minute
+    const interval = setInterval(updateVisibility, 60000);
 
     return () => {
       unsubscribe();

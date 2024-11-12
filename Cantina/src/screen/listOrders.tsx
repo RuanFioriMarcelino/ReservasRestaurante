@@ -184,11 +184,7 @@ export default function ListOrders() {
             <View className="w-full border-b my-2 border-gray-300"></View>
             <Text className="text-black">
               Horário de Retirada:{" "}
-              <Text className="text-laranja-100">
-                {order.pickupTime
-                  ? formatDateTime(order.pickupTime)
-                  : "Indefinido"}
-              </Text>
+              <Text className="text-laranja-100">{order.pickupTime}</Text>
             </Text>
             <View className="flex flex-row items-center">
               <Text className="text-black">Método de Pagamento: </Text>

@@ -21,6 +21,7 @@ interface OrdersList {
   user: string;
   userName: string;
   status: string;
+  pickupTime: string;
 }
 
 interface Foods {
@@ -82,7 +83,6 @@ export function List() {
     }
   };
 
-  // Atualizando em tempo real os pedidos
   useEffect(() => {
     const fetchOrders = () => {
       const ordersCollection = collection(database, "orders");
@@ -96,7 +96,7 @@ export function List() {
       const unsubscribe = onSnapshot(q, async (querySnapshot) => {
         const list: OrdersList[] = [];
 
-        querySnapshot.forEach((doc) => {
+        const promises = querySnapshot.docs.map(async (doc) => {
           const orderData = doc.data() as OrdersList;
           const orderDate = formatInTimeZone(
             orderData.addedAt.toDate(),
@@ -104,23 +104,28 @@ export function List() {
             "yyyy-MM-dd"
           );
 
-          // Verificar se o pedido é do dia atual
           if (orderDate === today) {
-            fetchUserNameById(orderData.user).then((userName) => {
-              list.push({ ...orderData, id: doc.id, userName });
-              setOrdersList((prevList) => {
-                const updatedList = [...prevList, ...list];
-                // Evitar duplicação
-                return Array.from(new Set(updatedList.map((a) => a.id))).map(
-                  (id) => updatedList.find((a) => a.id === id)!
-                );
-              });
-            });
+            const userName = await fetchUserNameById(orderData.user);
+            list.push({ ...orderData, id: doc.id, userName });
           }
+        });
+
+        await Promise.all(promises);
+
+        list.sort((a, b) => {
+          const timeA = a.pickupTime.split(":").map(Number);
+          const timeB = b.pickupTime.split(":").map(Number);
+          return timeA[0] - timeB[0] || timeA[1] - timeB[1];
+        });
+
+        setOrdersList((prevList) => {
+          const updatedList = [...prevList, ...list];
+          return Array.from(new Set(updatedList.map((a) => a.id))).map(
+            (id) => updatedList.find((a) => a.id === id)!
+          );
         });
       });
 
-      // Cleanup function to unsubscribe from the listener when the component unmounts
       return () => unsubscribe();
     };
 
@@ -177,14 +182,6 @@ export function List() {
     }
   }, []);
 
-  const formatDateTime = (timestamp: any) => {
-    const date = timestamp.toDate();
-    return date.toLocaleString("pt-BR", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   return (
     <div className="h-full flex flex-col w-full">
       <div className="p-4 flex flex-col gap-4 shadow-lg bg-white rounded-lg text-center">
@@ -195,8 +192,8 @@ export function List() {
 
         <div className="gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[550px] pr-2">
           {ordersList.map((order) => (
-            <div key={order.id} className="rounded-lg w-auto  shadow-xl mb-4">
-              <div className="flex flex-row gap-4 p-4 rounded-t-lg bg-gray-400 w-full">
+            <div key={order.id} className="rounded-lg w-auto shadow-xl mb-4">
+              <div className="flex flex-row gap-4 p-4 rounded-t-lg bg-gray-400 w-auto ">
                 <img
                   className="w-16 h-20 rounded-lg bg-gray-200 object-cover"
                   alt="Usuário"
@@ -208,10 +205,10 @@ export function List() {
                   <p className="text-sm font-medium text-white bg-black/50 px-4 py-1 rounded-full w-min whitespace-nowrap">
                     {order.paymentMethod}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 whitespace-nowrap w-min">
                     Entregar às:{" "}
                     <span className="font-bold text-gray-800">
-                      {formatDateTime(order.addedAt)}
+                      {order.pickupTime}
                     </span>
                   </p>
                 </div>
@@ -239,27 +236,28 @@ export function List() {
                     ))}
                 </div>
 
-                <div className="border-t-2 pt-3">
-                  <div className="flex justify-between">
-                    <span className="font-semibold text-lg">Total:</span>
-                    <span className="text-laranja-100 font-bold text-xl">
-                      R$ {order.total}
+                <div className=" pt-3">
+                  <div className="flex justify-between border-b-2 border-gray-400  ">
+                    <span className="font-semibold text-lg">
+                      Total:{" "}
+                      <span className="text-laranja-100 font-bold text-xl">
+                        R$ {order.total}
+                      </span>
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => updateOrderStatus(order.id)}
-                    className="w-full text-white uppercase font-medium p-3 rounded-lg mt-4 bg-gray-400"
-                    disabled={loading === order.id}
-                  >
-                    {loading === order.id ? "Processando..." : "Aceitar"}
-                  </button>
-
-                  {/* Exibindo o feedback individual para o pedido */}
-                  {feedbacks[order.id] && (
+                  {feedbacks[order.id] ? (
                     <p className="mt-2 text-sm text-green-500">
                       {feedbacks[order.id]}
                     </p>
+                  ) : (
+                    <button
+                      onClick={() => updateOrderStatus(order.id)}
+                      className="w-full text-white uppercase font-medium p-3 rounded-lg mt-4 bg-gray-400"
+                      disabled={loading === order.id}
+                    >
+                      {loading === order.id ? "Processando..." : "Aceitar"}
+                    </button>
                   )}
                 </div>
               </div>

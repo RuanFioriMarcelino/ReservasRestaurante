@@ -1,11 +1,11 @@
 import Card from "../components/card";
-import UserProfile from "../components/getUser";
 import Icon1 from "../assets/IconOrder.png";
 import Icon2 from "../assets/iconDelivered.png";
 import Icon3 from "../assets//IconOrderCancel.png";
 import Icon4 from "../assets/IconOrderReceita.png";
-import GetTotalOrders from "../components/getTotalOrders";
-import GetTotaValue from "../components/getTotalValue";
+import GetTotalOrders from "../hook/getTotalOrders";
+import GetTotaValue from "../hook/getTotalValue";
+import UserProfile from "../hook/getUser";
 
 export function Dashboard() {
   const ordersArray = GetTotalOrders();

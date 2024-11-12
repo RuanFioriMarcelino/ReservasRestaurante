@@ -8,6 +8,10 @@ import {
 } from "react-native";
 import { Input } from "../components/input";
 import { Button } from "../components/button";
+import { storage } from "../config/firebaseconfig";
+
+import * as ImagePicker from "expo-image-picker";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 import { auth, database } from "../config/firebaseconfig";
 import { collection, addDoc } from "firebase/firestore";
@@ -20,6 +24,48 @@ export default function Register({ navigation }: any) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [image, setImage] = useState<string>("");
+  const [progress, setProgress] = useState(0);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const { uri } = result.assets[0];
+      uploadImage(uri);
+    }
+  };
+
+  const uploadImage = async (uri: any) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const fileName = uri.split("/").pop();
+    const storageRef = ref(storage, `images/${fileName}`);
+
+    const uploadTask = uploadBytesResumable(storageRef, blob);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress =
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setProgress(progress);
+      },
+      (error) => {
+        alert(error);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((url) => {
+          setImage(url);
+        });
+      }
+    );
+  };
 
   const newUser = async () => {
     try {
@@ -63,6 +109,12 @@ export default function Register({ navigation }: any) {
         <Text className="text-5xl font-bold text-white uppercase">
           REGISTRE-SE
         </Text>
+        <Button
+          bgcolor={colors.white}
+          textColor={colors.laranja[100]}
+          title="Foto do Produto"
+          onPress={pickImage}
+        />
         <Input>
           <Input.Field placeholder="Nome" value={name} onChangeText={setName} />
         </Input>

@@ -39,11 +39,7 @@ const UserProfile = () => {
 
     return () => unsubscribe();
   }, []);
-  return (
-    <div>
-      <p>{userName}</p>
-    </div>
-  );
+  return userName;
 };
 
 export default UserProfile;

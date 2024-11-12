@@ -1,4 +1,4 @@
-import useFirestoreCollection from "../hook/getOrder";
+import useFirestoreCollection from "./getOrder";
 
 export default function GetTotalOrders() {
   const orders = useFirestoreCollection("orders");
