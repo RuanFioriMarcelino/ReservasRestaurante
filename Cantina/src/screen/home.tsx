@@ -44,7 +44,7 @@ interface ProductsCart {
   cart: boolean;
 }
 
-export default function Home() {
+export default function Home(navigation: any) {
   const [foods, setFoods] = useState<Foods[]>([]);
   const [productsCart, setProductsCart] = useState<ProductsCart[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -168,6 +168,7 @@ export default function Home() {
     signOut(auth)
       .then(() => {
         console.log("Usuário deslogado com sucesso!");
+        navigation.navigate("Login");
       })
       .catch((error) => {
         console.error("Erro ao deslogar: ", error);

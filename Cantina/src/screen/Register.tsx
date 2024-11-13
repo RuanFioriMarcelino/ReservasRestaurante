@@ -23,6 +23,7 @@ export default function Register({ navigation }: any) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState<string>("");
+  const [surname, setSurname] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<string>("");
   const [progress, setProgress] = useState(0);
@@ -69,7 +70,7 @@ export default function Register({ navigation }: any) {
 
   const newUser = async () => {
     try {
-      if (!name.trim() || !email.trim()) {
+      if (!name.trim() || !email.trim() || !image.trim()) {
         return Alert.alert("Inscrição", "Preencha todos os campos!");
       }
       setIsLoading(true);
@@ -86,8 +87,10 @@ export default function Register({ navigation }: any) {
       const userCollection = collection(database, "user");
       addDoc(userCollection, {
         name: name,
+        surname: surname,
         idUser: userCredential.user.uid,
         image: image,
+        email: email,
       });
       setName("");
 
@@ -110,16 +113,16 @@ export default function Register({ navigation }: any) {
         <Text className="text-5xl font-bold text-white uppercase">
           REGISTRE-SE
         </Text>
-        <View className="w-full">
-          <Button
-            bgcolor={colors.white}
-            textColor={colors.laranja[100]}
-            title="Insira sua foto de retrato"
-            onPress={pickImage}
-          />
-        </View>
+
         <Input>
           <Input.Field placeholder="Nome" value={name} onChangeText={setName} />
+        </Input>
+        <Input>
+          <Input.Field
+            placeholder="Sobrenome"
+            value={surname}
+            onChangeText={setSurname}
+          />
         </Input>
         <Input>
           <Input.Field
@@ -135,7 +138,15 @@ export default function Register({ navigation }: any) {
             onChangeText={setPassword}
           />
         </Input>
+
+        <Button
+          bgcolor={colors.white}
+          textColor={colors.laranja[100]}
+          title="Insira sua foto de retrato"
+          onPress={pickImage}
+        />
       </View>
+
       <View className="w-11/12 mt-8">
         <Button
           title="Registrar"

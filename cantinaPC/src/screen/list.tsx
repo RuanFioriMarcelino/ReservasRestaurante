@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { database } from "../config/firebaseconfig";
 import { formatInTimeZone } from "date-fns-tz";
+import GetTotalOrders from "../hook/getTotalOrders";
 
 interface OrdersList {
   id: string;
@@ -20,6 +21,7 @@ interface OrdersList {
   observation: string;
   user: string;
   userName: string;
+  userImage: string; // Adicionei a propriedade userImage
   status: string;
   pickupTime: string;
   quantity: number;
@@ -40,28 +42,36 @@ export function List() {
   const [ordersList, setOrdersList] = useState<OrdersList[]>([]);
   const [foods, setFoods] = useState<Foods[]>([]);
   const [detailedFoods, setDetailedFoods] = useState<any[]>([]);
-  const [feedbacks, setFeedbacks] = useState<Record<string, string>>({}); // Feedbacks individuais por pedido
-  const [loading, setLoading] = useState<string | null>(null); // Estado de carregamento
+  const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState<string | null>(null);
 
-  const fetchUserNameById = async (userId: string): Promise<string> => {
-    const userCollection = collection(database, "user");
-    const userQuery = query(userCollection, where("idUser", "==", userId));
-    const userDoc = await getDocs(userQuery);
+  const totalOrder = GetTotalOrders().length;
 
-    if (!userDoc.empty) {
-      const userData = userDoc.docs[0].data();
-      return userData.name;
+  const fetchUserById = async (
+    userId: string
+  ): Promise<{ name: string; image: string }> => {
+    try {
+      const userCollection = collection(database, "user");
+      const userQuery = query(userCollection, where("idUser", "==", userId));
+      const userDoc = await getDocs(userQuery);
+
+      if (!userDoc.empty) {
+        const userData = userDoc.docs[0].data();
+        return { name: userData.name, image: userData.image };
+      }
+      return { name: "Usuário desconhecido", image: "" };
+    } catch (error) {
+      console.error("Erro ao buscar usuário: ", error);
+      return { name: "Erro ao buscar usuário", image: "" };
     }
-    return "Usuário desconhecido";
   };
 
   const updateOrderStatus = async (orderId: string) => {
-    setLoading(orderId); // Indica que estamos carregando a atualização para esse pedido
-    setFeedbacks((prev) => ({ ...prev, [orderId]: "" })); // Limpa qualquer feedback anterior para esse pedido
+    setLoading(orderId);
+    setFeedbacks((prev) => ({ ...prev, [orderId]: "" }));
 
     const orderRef = doc(database, "orders", orderId);
     try {
-      // Atualiza o status do pedido para "Produzindo"
       await updateDoc(orderRef, {
         status: "Produzindo",
       });
@@ -70,7 +80,7 @@ export function List() {
         [orderId]: "Pedido aceito e agora está sendo produzido!",
       };
       setFeedbacks(updatedFeedbacks);
-      localStorage.setItem("feedbacks", JSON.stringify(updatedFeedbacks)); // Persistir no localStorage
+      localStorage.setItem("feedbacks", JSON.stringify(updatedFeedbacks));
     } catch (error) {
       console.error("Erro ao atualizar status do pedido: ", error);
       const updatedFeedbacks = {
@@ -78,9 +88,9 @@ export function List() {
         [orderId]: "Erro ao aceitar o pedido. Tente novamente.",
       };
       setFeedbacks(updatedFeedbacks);
-      localStorage.setItem("feedbacks", JSON.stringify(updatedFeedbacks)); // Persistir no localStorage
+      localStorage.setItem("feedbacks", JSON.stringify(updatedFeedbacks));
     } finally {
-      setLoading(null); // Remove o carregamento após a atualização
+      setLoading(null);
     }
   };
 
@@ -106,8 +116,13 @@ export function List() {
           );
 
           if (orderDate === today) {
-            const userName = await fetchUserNameById(orderData.user);
-            list.push({ ...orderData, id: doc.id, userName });
+            const { name, image } = await fetchUserById(orderData.user);
+            list.push({
+              ...orderData,
+              id: doc.id,
+              userName: name,
+              userImage: image,
+            });
           }
         });
 
@@ -177,7 +192,6 @@ export function List() {
   }, [ordersList, foods]);
 
   useEffect(() => {
-    // Carregar os feedbacks persistidos no localStorage
     const storedFeedbacks = localStorage.getItem("feedbacks");
     if (storedFeedbacks) {
       setFeedbacks(JSON.parse(storedFeedbacks));
@@ -188,15 +202,16 @@ export function List() {
     <div className="h-full flex flex-col w-full">
       <div className="p-4 flex flex-col gap-4 shadow-lg bg-white rounded-lg text-center">
         <h3 className="text-2xl font-semibold text-gray-800">
-          Pedidos de Hoje
+          Pedidos de Hoje - {totalOrder}
         </h3>
         <div className="border-b border-gray-300 mb-4" />
 
-        <div className="gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[550px] pr-2">
+        <div className="gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[50px] pr-2">
           {ordersList.map((order) => (
-            <div key={order.id} className="rounded-lg w-auto shadow-xl mb-4">
+            <div key={order.id} className="rounded-lg w-auto shadow-xl mb-4 ">
               <div className="flex flex-row gap-4 p-4 rounded-t-lg bg-gray-400 w-auto ">
                 <img
+                  src={order.userImage || "/path/to/default/image.jpg"} // Use a imagem do usuário ou uma padrão
                   className="w-16 h-20 rounded-lg bg-gray-200 object-cover"
                   alt="Usuário"
                 />
@@ -216,7 +231,7 @@ export function List() {
                 </div>
               </div>
 
-              <div className="p-3 flex flex-col h-80 justify-between">
+              <div className="p-3 flex flex-col h-72 justify-between">
                 <div className="mb-4 overflow-y-auto items-start w-full">
                   {detailedFoods
                     .filter((food) => food.orderId === order.id)
@@ -226,7 +241,7 @@ export function List() {
                         className={`flex justify-between mb-2  ${index !== array.length - 1 ? "border-b border-gray-400" : ""}`}
                       >
                         <p className="text-lg font-semibold text-gray-800 w-full text-start whitespace-break-spaces">
-                          {item.quantity == "Quantidade não informada"
+                          {item.quantity === "Quantidade não informada"
                             ? `${item.quantity} - `
                             : `${item.quantity}x - `}
                           {item.name} -{" "}
@@ -241,8 +256,8 @@ export function List() {
                     ))}
                 </div>
 
-                <div className=" pt-3">
-                  <div className="flex justify-between border-b-2 border-gray-400  ">
+                <div className="pt-3">
+                  <div className="flex justify-between border-b-2 border-gray-400">
                     <span className="font-semibold text-lg">
                       Total:{" "}
                       <span className="text-laranja-100 font-bold text-xl">

@@ -53,46 +53,44 @@ export default function CardProduct(type: Props) {
   }
 
   return (
-    <>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-center h-[550px] overflow-y-auto overflow-x-hidden pr-2 pb-4">
-        {Products.map((product) => (
-          <div
-            key={product.id}
-            className="  flex bg-white rounded-lg shadow-sm shadow-neutral-500"
-          >
-            <img
-              src={product.imgURL}
-              alt={product.name}
-              className="rounded-s-lg w-28"
-            />
-            <div className="p-2 flex w-full justify-between">
-              <div className="justify-evenly flex flex-col w-full">
-                <p className="font-bold">{product.name}</p>
-                <p className="text-sm  h-10  overflow-hidden text-ellipsis ">
-                  {product.description}
-                </p>
-                <p className="text-orange-600 font-medium text-xl">
-                  R$ {product.value}
-                </p>
-              </div>
-              <div className="w-1/3 flex-col flex justify-between">
-                <Button
-                  button
-                  children={<Trash2 />}
-                  onClick={() => deleteProduct(product.id)}
-                />
-                <BasicModal
-                  name={product.name}
-                  description={product.description}
-                  genre={product.genre}
-                  value={product.value}
-                  imgURL={product.imgURL}
-                />
-              </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 justify-center h-[550px] overflow-y-auto overflow-x-hidden pr-2 pb-4">
+      {Products.map((product) => (
+        <div
+          key={product.id}
+          className="  flex bg-white rounded-lg shadow-sm shadow-neutral-500"
+        >
+          <img
+            src={product.imgURL}
+            alt={product.name}
+            className="rounded-s-lg w-28"
+          />
+          <div className="p-2 flex w-full justify-between">
+            <div className="justify-evenly flex flex-col w-full">
+              <p className="font-bold">{product.name}</p>
+              <p className="text-sm  h-10  overflow-hidden text-ellipsis ">
+                {product.description}
+              </p>
+              <p className="text-orange-600 font-medium text-xl">
+                R$ {product.value}
+              </p>
+            </div>
+            <div className="w-1/3 flex-col flex justify-between">
+              <Button
+                button
+                children={<Trash2 />}
+                onClick={() => deleteProduct(product.id)}
+              />
+              <BasicModal
+                name={product.name}
+                description={product.description}
+                genre={product.genre}
+                value={product.value}
+                imgURL={product.imgURL}
+              />
             </div>
           </div>
-        ))}
-      </div>
-    </>
+        </div>
+      ))}
+    </div>
   );
 }

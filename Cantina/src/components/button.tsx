@@ -23,7 +23,7 @@ export function Button({
   return (
     <TouchableOpacity activeOpacity={0.7} disabled={isLoading} {...rest}>
       <View
-        className="w-full h-14 items-center justify-center rounded-lg"
+        className="w-full px-4   h-14 items-center justify-center rounded-lg"
         style={{ backgroundColor: `${bgcolor}` }}
       >
         {isLoading ? (
