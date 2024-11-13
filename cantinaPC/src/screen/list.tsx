@@ -22,6 +22,7 @@ interface OrdersList {
   userName: string;
   status: string;
   pickupTime: string;
+  quantity: number;
 }
 
 interface Foods {
@@ -161,6 +162,7 @@ export function List() {
         addedAt: order.addedAt,
         paymentMethod: order.paymentMethod,
         observation: detail.observation || "",
+        quantity: detail.quantity || "Quantidade não informada",
       }));
     });
 
@@ -223,9 +225,12 @@ export function List() {
                         key={item.productId}
                         className={`flex justify-between mb-2  ${index !== array.length - 1 ? "border-b border-gray-400" : ""}`}
                       >
-                        <p className="text-base font-semibold text-gray-800 w-full text-start">
+                        <p className="text-lg font-semibold text-gray-800 w-full text-start whitespace-break-spaces">
+                          {item.quantity == "Quantidade não informada"
+                            ? `${item.quantity} - `
+                            : `${item.quantity}x - `}
                           {item.name} -{" "}
-                          <span className="text-sm text-gray-500 w-full">
+                          <span className="text-base text-gray-500 w-full">
                             {item.observation || "Sem observações"}
                           </span>
                         </p>

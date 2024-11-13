@@ -45,7 +45,7 @@ export default function Register({ navigation }: any) {
     const response = await fetch(uri);
     const blob = await response.blob();
     const fileName = uri.split("/").pop();
-    const storageRef = ref(storage, `images/${fileName}`);
+    const storageRef = ref(storage, `imageUser/${fileName}`);
 
     const uploadTask = uploadBytesResumable(storageRef, blob);
 
@@ -87,6 +87,7 @@ export default function Register({ navigation }: any) {
       addDoc(userCollection, {
         name: name,
         idUser: userCredential.user.uid,
+        image: image,
       });
       setName("");
 
@@ -109,12 +110,14 @@ export default function Register({ navigation }: any) {
         <Text className="text-5xl font-bold text-white uppercase">
           REGISTRE-SE
         </Text>
-        <Button
-          bgcolor={colors.white}
-          textColor={colors.laranja[100]}
-          title="Foto do Produto"
-          onPress={pickImage}
-        />
+        <View className="w-full">
+          <Button
+            bgcolor={colors.white}
+            textColor={colors.laranja[100]}
+            title="Insira sua foto de retrato"
+            onPress={pickImage}
+          />
+        </View>
         <Input>
           <Input.Field placeholder="Nome" value={name} onChangeText={setName} />
         </Input>

@@ -47,8 +47,6 @@ export default function BasicModal({
   const [imgURLEdit, setImgURLEdit] = useState(imgURL);
   const [progress, setProgress] = useState(0);
 
-  console.log(nameEdit, valueEdit, descriptionEdit, genreEdit, imgURLEdit);
-
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
     setGenreEdit(e.target.value);
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 interface Usuario {
   idUser: string;
   name: string;
+  image:string
 }
 
 export function useGetUser() {
@@ -28,5 +29,6 @@ export function useGetUser() {
     return () => unsubscribe();
   }, [user]);
 
+  
   return usuario;
 }

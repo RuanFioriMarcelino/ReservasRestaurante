@@ -170,7 +170,6 @@ export default function Cart({ navigation }: any) {
   };
 
   const handleFinalizeOrder = () => {
-    // Check if a valid pickup time is selected (between 11:30 and 13:00)
     if (!selectedPickupTime) {
       Alert.alert("Horário", "Por favor, selecione um horário para retirada.");
       return;
@@ -185,6 +184,7 @@ export default function Cart({ navigation }: any) {
         orderDetails: foods.map((item) => ({
           id: item.id,
           observation: item.observation,
+          quantity: item.quantity,
         })),
         total: sum,
         pickupTime: selectedPickupTime,

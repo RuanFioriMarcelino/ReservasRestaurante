@@ -35,6 +35,8 @@ export default function Payment({ route, navigation }: any) {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");
 
+  console.log(orderDetails, "order");
+
   const handlePayment = (method: any) => {
     setSelectedPayment(method);
     setModalVisible(true);
