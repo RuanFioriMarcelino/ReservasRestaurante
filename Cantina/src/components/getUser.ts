@@ -1,34 +1,37 @@
-import { auth, collection, database } from "../config/firebaseconfig";
+import { auth, doc, database } from "../config/firebaseconfig";
 import { onSnapshot } from "firebase/firestore";
 import { useEffect, useState } from "react";
 
 interface Usuario {
-  idUser: string;
+  id: string;
   name: string;
-  image:string
+  photoURL: string;
 }
 
 export function useGetUser() {
-  const [usuario, setUsuario] = useState<Usuario[]>([]);
-  const user = auth.currentUser;
+  const [usuario, setUsuario] = useState<Usuario | null>(); 
+  const user = auth.currentUser?.uid; 
 
+
+  
   useEffect(() => {
-    if (!user) return;
-    const productCollection = collection(database, "user");
-    const unsubscribe = onSnapshot(productCollection, (querySnapshot) => {
-      const list: Usuario[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as Usuario;
-        if (data.idUser === user.uid) {
-          list.push({ ...data, idUser: doc.id });
-        }
-      });
-      setUsuario(list);
+    if (!user) return; 
+
+
+    const userDoc = doc(database, "user", user); 
+
+  
+    const unsubscribe = onSnapshot(userDoc, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data() as Usuario;
+        setUsuario({ ...data, id: docSnapshot.id }); 
+      } else {
+        console.log("Usuário não encontrado!");
+      }
     });
 
     return () => unsubscribe();
   }, [user]);
 
-  
   return usuario;
 }

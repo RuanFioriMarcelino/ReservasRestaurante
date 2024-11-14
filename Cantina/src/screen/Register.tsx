@@ -14,7 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 import { auth, database } from "../config/firebaseconfig";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { colors } from "../styles/colors";
@@ -70,7 +70,13 @@ export default function Register({ navigation }: any) {
 
   const newUser = async () => {
     try {
-      if (!name.trim() || !email.trim() || !image.trim()) {
+      if (
+        !name.trim() ||
+        !surname.trim() ||
+        !email.trim() ||
+        !password.trim() ||
+        !image.trim()
+      ) {
         return Alert.alert("Inscrição", "Preencha todos os campos!");
       }
       setIsLoading(true);
@@ -84,15 +90,14 @@ export default function Register({ navigation }: any) {
         { text: "OK", onPress: () => navigation.navigate("/Cardapio") },
       ]);
 
-      const userCollection = collection(database, "user");
-      addDoc(userCollection, {
+      const userCollection = doc(database, "user", userCredential.user.uid);
+      await setDoc(userCollection, {
         name: name,
         surname: surname,
-        idUser: userCredential.user.uid,
-        image: image,
+        photoURL: image,
         email: email,
+        registrationDate: new Date().toISOString(), // Armazenando a data de registro
       });
-      setName("");
 
       console.log("User registered:", userCredential.user);
       Alert.alert("conta criada");

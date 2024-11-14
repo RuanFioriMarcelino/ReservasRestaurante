@@ -2,25 +2,34 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
-import { FlatList } from "react-native-gesture-handler";
-
-import { useGetUser } from "../components/getUser";
+import { useGetUser } from "../components/getUser"; // Função que retorna o usuário
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { RootStackParamList } from "../types/navigation"; // Importe o tipo de navegação
+import { NativeStackNavigationProp } from "@react-navigation/native-stack"; // Importa o tipo de navegação
 import { Loading } from "./loading";
 
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
+
 export default function AvatarBar() {
-  const user = useGetUser();
-  const navigation = useNavigation(); // Use the hook here
+  const user = useGetUser(); // Obtém o usuário autenticado
+  const navigation = useNavigation<NavigationProp>(); // Agora o navigation está tipado
   const route = useRoute();
-  const imgUrl = user.map((item) => item.image).toString();
+
+  if (!user) {
+    return (
+      <View className="w-full bg-laranja-100 h-24 rounded-b-3xl p-6 justify-center items-center">
+        <Loading />
+      </View>
+    );
+  }
 
   return (
     <View className="w-full bg-laranja-100 h-24 rounded-b-3xl p-6 justify-center">
       <View className="flex-row items-center gap-4">
         <View className="items-center">
-          {imgUrl ? (
+          {user?.photoURL ? (
             <Image
-              source={{ uri: imgUrl }}
+              source={{ uri: user?.photoURL }}
               className="w-[65px] h-[65px] rounded-full border-white border"
             />
           ) : (
@@ -29,18 +38,15 @@ export default function AvatarBar() {
             </View>
           )}
         </View>
-        <FlatList
-          data={user}
-          keyExtractor={(item) => item.toString()}
-          renderItem={({ item }) => (
-            <View>
-              <Text className="font-regular text-xl text-white">
-                Olá, {item.name}
-              </Text>
-            </View>
-          )}
-        />
-        {route.name != "Notification" ? (
+
+        <View>
+          <Text className="font-regular text-xl text-white">
+            Olá, {user.name || "Usuário"}
+          </Text>
+        </View>
+
+        {/* Verifica se a rota não é 'Notification' para exibir o ícone de notificações */}
+        {route.name !== "Notification" && (
           <View className="w-full flex-1 items-end">
             <TouchableOpacity
               activeOpacity={0.5}
@@ -53,7 +59,7 @@ export default function AvatarBar() {
               />
             </TouchableOpacity>
           </View>
-        ) : null}
+        )}
       </View>
     </View>
   );

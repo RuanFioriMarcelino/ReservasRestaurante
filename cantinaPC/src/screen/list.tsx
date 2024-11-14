@@ -49,7 +49,7 @@ export function List() {
 
   const fetchUserById = async (
     userId: string
-  ): Promise<{ name: string; image: string }> => {
+  ): Promise<{ name: string; photoURL: string }> => {
     try {
       const userCollection = collection(database, "user");
       const userQuery = query(userCollection, where("idUser", "==", userId));
@@ -57,12 +57,12 @@ export function List() {
 
       if (!userDoc.empty) {
         const userData = userDoc.docs[0].data();
-        return { name: userData.name, image: userData.image };
+        return { name: userData.name, photoURL: userData.photoURL };
       }
-      return { name: "Usuário desconhecido", image: "" };
+      return { name: "Usuário desconhecido", photoURL: "" };
     } catch (error) {
       console.error("Erro ao buscar usuário: ", error);
-      return { name: "Erro ao buscar usuário", image: "" };
+      return { name: "Erro ao buscar usuário", photoURL: "" };
     }
   };
 
@@ -116,12 +116,12 @@ export function List() {
           );
 
           if (orderDate === today) {
-            const { name, image } = await fetchUserById(orderData.user);
+            const { name, photoURL } = await fetchUserById(orderData.user);
             list.push({
               ...orderData,
               id: doc.id,
               userName: name,
-              userImage: image,
+              userImage: photoURL,
             });
           }
         });
@@ -206,7 +206,7 @@ export function List() {
         </h3>
         <div className="border-b border-gray-300 mb-4" />
 
-        <div className="gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[50px] pr-2">
+        <div className="gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[490px] pr-2">
           {ordersList.map((order) => (
             <div key={order.id} className="rounded-lg w-auto shadow-xl mb-4 ">
               <div className="flex flex-row gap-4 p-4 rounded-t-lg bg-gray-400 w-auto ">
