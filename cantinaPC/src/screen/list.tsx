@@ -1,221 +1,27 @@
-import { useEffect, useState } from "react";
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  getDocs,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
-import { database } from "../config/firebaseconfig";
-import { formatInTimeZone } from "date-fns-tz";
-import GetTotalOrders from "../hook/getTotalOrders";
-
-interface OrdersList {
-  id: string;
-  addedAt: any;
-  orderDetails: any[];
-  paymentMethod: string;
-  total: string;
-  observation: string;
-  user: string;
-  userName: string;
-  userImage: string; // Adicionei a propriedade userImage
-  status: string;
-  pickupTime: string;
-  quantity: number;
-}
-
-interface Foods {
-  id: string;
-  name: string;
-  description: string;
-  value: string;
-  imgURL: string;
-  order: number;
-  quantity: number;
-  idCart: string;
-}
+import { useOrders } from "../hook/getOrderList";
 
 export function List() {
-  const [ordersList, setOrdersList] = useState<OrdersList[]>([]);
-  const [foods, setFoods] = useState<Foods[]>([]);
-  const [detailedFoods, setDetailedFoods] = useState<any[]>([]);
-  const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState<string | null>(null);
-
-  const totalOrder = GetTotalOrders().length;
-
-  const fetchUserById = async (
-    userId: string
-  ): Promise<{ name: string; photoURL: string }> => {
-    try {
-      const userCollection = collection(database, "user");
-      const userQuery = query(userCollection, where("idUser", "==", userId));
-      const userDoc = await getDocs(userQuery);
-
-      if (!userDoc.empty) {
-        const userData = userDoc.docs[0].data();
-        return { name: userData.name, photoURL: userData.photoURL };
-      }
-      return { name: "Usuário desconhecido", photoURL: "" };
-    } catch (error) {
-      console.error("Erro ao buscar usuário: ", error);
-      return { name: "Erro ao buscar usuário", photoURL: "" };
-    }
-  };
-
-  const updateOrderStatus = async (orderId: string) => {
-    setLoading(orderId);
-    setFeedbacks((prev) => ({ ...prev, [orderId]: "" }));
-
-    const orderRef = doc(database, "orders", orderId);
-    try {
-      await updateDoc(orderRef, {
-        status: "Produzindo",
-      });
-      const updatedFeedbacks = {
-        ...feedbacks,
-        [orderId]: "Pedido aceito e agora está sendo produzido!",
-      };
-      setFeedbacks(updatedFeedbacks);
-      localStorage.setItem("feedbacks", JSON.stringify(updatedFeedbacks));
-    } catch (error) {
-      console.error("Erro ao atualizar status do pedido: ", error);
-      const updatedFeedbacks = {
-        ...feedbacks,
-        [orderId]: "Erro ao aceitar o pedido. Tente novamente.",
-      };
-      setFeedbacks(updatedFeedbacks);
-      localStorage.setItem("feedbacks", JSON.stringify(updatedFeedbacks));
-    } finally {
-      setLoading(null);
-    }
-  };
-
-  useEffect(() => {
-    const fetchOrders = () => {
-      const ordersCollection = collection(database, "orders");
-      const today = formatInTimeZone(
-        new Date(),
-        "America/Sao_Paulo",
-        "yyyy-MM-dd"
-      );
-
-      const q = query(ordersCollection);
-      const unsubscribe = onSnapshot(q, async (querySnapshot) => {
-        const list: OrdersList[] = [];
-
-        const promises = querySnapshot.docs.map(async (doc) => {
-          const orderData = doc.data() as OrdersList;
-          const orderDate = formatInTimeZone(
-            orderData.addedAt.toDate(),
-            "America/Sao_Paulo",
-            "yyyy-MM-dd"
-          );
-
-          if (orderDate === today) {
-            const { name, photoURL } = await fetchUserById(orderData.user);
-            list.push({
-              ...orderData,
-              id: doc.id,
-              userName: name,
-              userImage: photoURL,
-            });
-          }
-        });
-
-        await Promise.all(promises);
-
-        list.sort((a, b) => {
-          const timeA = a.pickupTime.split(":").map(Number);
-          const timeB = b.pickupTime.split(":").map(Number);
-          return timeA[0] - timeB[0] || timeA[1] - timeB[1];
-        });
-
-        setOrdersList((prevList) => {
-          const updatedList = [...prevList, ...list];
-          return Array.from(new Set(updatedList.map((a) => a.id))).map(
-            (id) => updatedList.find((a) => a.id === id)!
-          );
-        });
-      });
-
-      return () => unsubscribe();
-    };
-
-    fetchOrders();
-  }, []);
-
-  useEffect(() => {
-    const fetchFoods = async () => {
-      const productsCollection = collection(database, "products");
-      const querySnapshot = await getDocs(productsCollection);
-      const list: Foods[] = [];
-
-      querySnapshot.forEach((doc) => {
-        list.push({ ...doc.data(), id: doc.id } as Foods);
-      });
-      setFoods(list);
-    };
-
-    fetchFoods();
-  }, []);
-
-  useEffect(() => {
-    const orderProductDetails = ordersList.flatMap((order) => {
-      if (!Array.isArray(order.orderDetails)) {
-        console.warn(
-          `Order ${order.id} has orderDetails of type ${typeof order.orderDetails}`
-        );
-        return [];
-      }
-      return order.orderDetails.map((detail) => ({
-        productId: detail.id,
-        orderId: order.id,
-        addedAt: order.addedAt,
-        paymentMethod: order.paymentMethod,
-        observation: detail.observation || "",
-        quantity: detail.quantity || "Quantidade não informada",
-      }));
-    });
-
-    const matchedFoods = orderProductDetails
-      .map((detail) => {
-        const food = foods.find((f) => f.id === detail.productId);
-        return food ? { ...food, ...detail } : null;
-      })
-      .filter((item) => item !== null);
-
-    setDetailedFoods(matchedFoods);
-  }, [ordersList, foods]);
-
-  useEffect(() => {
-    const storedFeedbacks = localStorage.getItem("feedbacks");
-    if (storedFeedbacks) {
-      setFeedbacks(JSON.parse(storedFeedbacks));
-    }
-  }, []);
+  const { ordersList, detailedFoods, feedbacks, updateOrderStatus, loading } =
+    useOrders();
 
   return (
     <div className="h-full flex flex-col w-full">
       <div className="p-4 flex flex-col gap-4 shadow-lg bg-white rounded-lg text-center">
         <h3 className="text-2xl font-semibold text-gray-800">
-          Pedidos de Hoje - {totalOrder}
+          Pedidos de Hoje - {ordersList.length}
         </h3>
         <div className="border-b border-gray-300 mb-4" />
 
         <div className="gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[490px] pr-2">
           {ordersList.map((order) => (
-            <div key={order.id} className="rounded-lg w-auto shadow-xl mb-4 ">
-              <div className="flex flex-row gap-4 p-4 rounded-t-lg bg-gray-400 w-auto ">
+            <div key={order.id} className="rounded-lg w-auto shadow-xl mb-4">
+              <div className="flex flex-row gap-4 p-4 rounded-t-lg bg-gray-400 w-auto">
                 <img
-                  src={order.userImage || "/path/to/default/image.jpg"} // Use a imagem do usuário ou uma padrão
+                  src={order.userImage || "/path/to/default/image.jpg"}
                   className="w-16 h-20 rounded-lg bg-gray-200 object-cover"
                   alt="Usuário"
                 />
-                <div className="text-left ">
+                <div className="text-left">
                   <p className="text-xl font-semibold text-gray-800">
                     {order.userName}
                   </p>
@@ -238,7 +44,7 @@ export function List() {
                     .map((item, index, array) => (
                       <div
                         key={item.productId}
-                        className={`flex justify-between mb-2  ${index !== array.length - 1 ? "border-b border-gray-400" : ""}`}
+                        className={`flex justify-between mb-2 ${index !== array.length - 1 ? "border-b border-gray-400" : ""}`}
                       >
                         <p className="text-lg font-semibold text-gray-800 w-full text-start whitespace-break-spaces">
                           {item.quantity === "Quantidade não informada"
