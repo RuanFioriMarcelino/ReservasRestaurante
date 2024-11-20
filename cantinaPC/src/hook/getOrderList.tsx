@@ -45,15 +45,20 @@ export function useOrders() {
   const [loading, setLoading] = useState<string | null>(null);
   console.log(ordersList);
 
-  const updateOrderStatus = async (orderId: string) => {
+  const updateOrderStatus = async (orderId: string, status: string) => {
     setLoading(orderId);
     setFeedbacks((prev) => ({ ...prev, [orderId]: "" }));
 
     const orderRef = doc(database, "orders", orderId);
     try {
-      await updateDoc(orderRef, {
-        status: "Produzindo",
-      });
+      await updateDoc(orderRef, { status: status });
+
+      setOrdersList((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId ? { ...order, status: status } : order
+        )
+      );
+
       const updatedFeedbacks = {
         ...feedbacks,
         [orderId]: "Pedido aceito e agora está sendo produzido!",

@@ -6,6 +6,7 @@ export function List() {
 
   return (
     <div className="h-full flex flex-row w-full gap-4">
+      {/* Tela Esquerda */}
       <div className="p-4 flex flex-col flex-1 gap-4 shadow-lg bg-white rounded-lg text-center">
         <h3 className="text-2xl font-semibold text-gray-800 uppercase">
           Pedidos de entrada -{" "}
@@ -13,11 +14,14 @@ export function List() {
         </h3>
         <div className="border-b border-gray-300 mb-4" />
 
-        <div className="gap-4 overflow-y-auto max-w-full flex-wrap grid grid-cols-1 lg:grid-cols-4 max-h-[490px] pr-2">
+        <div className="gap-4 overflow-y-auto flex-wrap grid grid-cols-1 max-h-[490px] pr-2">
           {ordersList
             .filter((order) => order.status === "Processando") // Filtra apenas pedidos com status "processando"
             .map((order) => (
-              <div key={order.id} className="rounded-lg w-auto shadow-xl mb-4">
+              <div
+                key={`${order.id}-${order.status}`}
+                className="rounded-lg w-auto shadow-xl mb-4"
+              >
                 <div className="flex flex-row gap-4 p-4 rounded-t-lg bg-gray-400 w-auto">
                   <img
                     src={order.userImage || "/path/to/default/image.jpg"}
@@ -75,19 +79,13 @@ export function List() {
                       </span>
                     </div>
 
-                    {feedbacks[order.id] ? (
-                      <p className="mt-2 text-sm text-green-500">
-                        {feedbacks[order.id]}
-                      </p>
-                    ) : (
-                      <button
-                        onClick={() => updateOrderStatus(order.id)}
-                        className="w-full text-white uppercase font-medium p-3 rounded-lg mt-4 bg-gray-400"
-                        disabled={loading === order.id}
-                      >
-                        {loading === order.id ? "Processando..." : "Aceitar"}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => updateOrderStatus(order.id, "Produzindo")}
+                      className="w-full text-white uppercase font-medium p-3 rounded-lg mt-4 bg-gray-400"
+                      disabled={loading === order.id}
+                    >
+                      {loading === order.id ? "Processando..." : "Aceitar"}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -95,7 +93,7 @@ export function List() {
         </div>
       </div>
 
-      {/* Segunda tela */}
+      {/* Tela direita */}
 
       <div className="p-4 flex flex-col flex-1 gap-4 shadow-lg bg-white rounded-lg text-center">
         <h3 className="text-2xl font-semibold text-gray-800 uppercase">
@@ -104,11 +102,14 @@ export function List() {
         </h3>
         <div className="border-b border-gray-300 mb-4" />
 
-        <div className="gap-4 overflow-y-auto flex-wrap grid grid-cols-1 max-h-[490px] pr-2">
+        <div className="gap-4 overflow-y-auto flex-wrap w- grid grid-cols-1  lg:grid-cols-2 max-h-[490px] pr-2">
           {ordersList
             .filter((order) => order.status === "Produzindo") // Filtra apenas pedidos com status "processando"
             .map((order) => (
-              <div key={order.id} className="rounded-lg w-auto shadow-md mb-4">
+              <div
+                key={`${order.id}-${order.status}`}
+                className="rounded-lg  shadow-xl mb-4"
+              >
                 <div className="flex flex-row gap-4 p-4 rounded-t-lg bg-gray-400 w-auto">
                   <img
                     src={order.userImage || "/path/to/default/image.jpg"}
@@ -166,19 +167,13 @@ export function List() {
                       </span>
                     </div>
 
-                    {feedbacks[order.id] ? (
-                      <p className="mt-2 text-sm text-green-500">
-                        {feedbacks[order.id]}
-                      </p>
-                    ) : (
-                      <button
-                        onClick={() => updateOrderStatus(order.id)}
-                        className="w-full text-white uppercase font-medium p-3 rounded-lg mt-4 bg-gray-400"
-                        disabled={loading === order.id}
-                      >
-                        {loading === order.id ? "Processando..." : "Aceitar"}
-                      </button>
-                    )}
+                    <button
+                      onClick={() => updateOrderStatus(order.id, "Entregue")}
+                      className="w-full text-white uppercase font-medium p-3 rounded-lg mt-4 bg-gray-400"
+                      disabled={loading === order.id}
+                    >
+                      {loading === order.id ? "Processando..." : "Entregar"}
+                    </button>
                   </div>
                 </div>
               </div>

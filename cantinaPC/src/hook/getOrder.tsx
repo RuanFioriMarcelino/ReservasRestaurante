@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { database } from "../config/firebaseconfig";
 import { format, toZonedTime } from "date-fns-tz";
 
-function useFirestoreCollectionForToday<T extends { addedAt: any }>(
-  collectionName: string
-): T[] {
+function useFirestoreCollectionForToday<
+  T extends { addedAt: any; status?: string },
+>(collectionName: string, statusFilter?: string): T[] {
   const [data, setData] = useState<T[]>([]);
 
   useEffect(() => {
@@ -24,8 +24,12 @@ function useFirestoreCollectionForToday<T extends { addedAt: any }>(
         const docDateInBrasilia = toZonedTime(docDate, timeZone);
         const docDateString = format(docDateInBrasilia, "yyyy-MM-dd");
 
+        // Verifica se a data corresponde ao dia atual
         if (docDateString === todayString) {
-          items.push({ ...docData, id: doc.id });
+          // Verifica o status caso o filtro seja fornecido
+          if (!statusFilter || docData.status === statusFilter) {
+            items.push({ ...docData, id: doc.id });
+          }
         }
       });
 
@@ -33,9 +37,8 @@ function useFirestoreCollectionForToday<T extends { addedAt: any }>(
     });
 
     return () => unsubscribe();
-  }, [collectionName]);
+  }, [collectionName, statusFilter]);
 
-  console.log("data: ", data);
   return data;
 }
 

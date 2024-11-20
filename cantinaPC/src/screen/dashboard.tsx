@@ -3,14 +3,19 @@ import Icon1 from "../assets/IconOrder.png";
 import Icon2 from "../assets/iconDelivered.png";
 import Icon3 from "../assets//IconOrderCancel.png";
 import Icon4 from "../assets/IconOrderReceita.png";
-import GetTotalOrders from "../hook/getTotalOrders";
 import GetTotaValue from "../hook/getTotalValue";
 import UserProfile from "../hook/getUser";
+import useFirestoreCollectionForToday from "../hook/getOrder";
 
 export function Dashboard() {
-  const ordersArray = GetTotalOrders();
+  const ordersArray = useFirestoreCollectionForToday("orders").length;
+  const pedidosEntreguesHoje = useFirestoreCollectionForToday(
+    "orders",
+    "Entregue"
+  ).length;
+
   const totalValue = GetTotaValue();
-  const localTotalOrders = ordersArray.length; // Get the string of orders
+
   const a = 0;
 
   return (
@@ -24,10 +29,10 @@ export function Dashboard() {
         . Bem Vindo ao Jô Pães Dashboard!
       </p>
       <div className="my-6 grid grid-cols-1 lg:grid-cols-4 gap-6 ">
-        <Card value={`${localTotalOrders}`} title="Total de pedidos">
+        <Card value={`${ordersArray}`} title="Total de pedidos">
           {<img src={Icon1} width="70px" height="70px" />}
         </Card>
-        <Card value={`${a}`} title="Total entregue">
+        <Card value={`${pedidosEntreguesHoje}`} title="Total entregue">
           {<img src={Icon2} width="70px" height="70px" />}
         </Card>
         <Card value={`${a}`} title="Total cancelado">
