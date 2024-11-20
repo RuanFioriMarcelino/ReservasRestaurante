@@ -6,27 +6,26 @@ interface Usuario {
   id: string;
   name: string;
   photoURL: string;
+  email:string
+  cpf:string
 }
 
-export function useGetUser() {
-  const [usuario, setUsuario] = useState<Usuario | null>(); 
-  const user = auth.currentUser?.uid; 
+export function useGetUser(): Usuario | null {
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const user = auth.currentUser?.uid;
 
-
-  
   useEffect(() => {
-    if (!user) return; 
+    if (!user) return;
 
+    const userDoc = doc(database, "user", user);
 
-    const userDoc = doc(database, "user", user); 
-
-  
     const unsubscribe = onSnapshot(userDoc, (docSnapshot) => {
       if (docSnapshot.exists()) {
         const data = docSnapshot.data() as Usuario;
-        setUsuario({ ...data, id: docSnapshot.id }); 
+        setUsuario({ ...data, id: docSnapshot.id });
       } else {
         console.log("Usuário não encontrado!");
+        setUsuario(null); // Explicitamente define como null se não encontrado
       }
     });
 

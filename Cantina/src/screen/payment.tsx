@@ -6,11 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Clipboard,
 } from "react-native";
+
+import QRCode from "react-native-qrcode-svg";
+import { postCriarPix } from "../api/service";
 import AvatarBar from "../components/avatarBar";
 import { Button } from "../components/button";
 import { colors } from "../styles/colors";
-import { AntDesign } from "@expo/vector-icons";
 import {
   addDoc,
   auth,
@@ -19,27 +22,58 @@ import {
   deleteDoc,
   doc,
 } from "../config/firebaseconfig";
-
 import ModalOverlay from "../components/modal";
+import { useGetUser } from "../components/getUser";
 
 interface Detail {
   id: string;
   observation: string;
 }
 
+type Usuario = {
+  email: string;
+  cpf: string;
+};
+
 export default function Payment({ route, navigation }: any) {
   const { orderDetails, total, pickupTime } = route.params;
-  const user = auth.currentUser?.uid;
-
-  const [payment, setPayment] = useState("");
+  const user: Usuario | null = useGetUser();
+  const [qrCode, setQRcode] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");
 
-  console.log(orderDetails, "order");
+  const MOCK_BODY = user
+    ? {
+        transaction_amount: total,
+        description: `Horário de retirada: ${pickupTime}`,
+        payment_method_id: "pix",
+        email: user.email,
+        identificationType: "CPF",
+        number: user.cpf,
+      }
+    : null;
 
-  const handlePayment = (method: any) => {
+  const handlePayment = (method: string) => {
     setSelectedPayment(method);
-    setModalVisible(true);
+    if (method !== "pix" && method !== "") {
+      setModalVisible(true);
+    }
+    if (method === "pix" && MOCK_BODY) {
+      postCriarPix(MOCK_BODY)
+        .then((response) => {
+          console.log("response", response.data);
+          const qrCodeData =
+            response.data?.point_of_interaction?.transaction_data?.qr_code;
+          if (qrCodeData) {
+            setQRcode(qrCodeData);
+          } else {
+            console.error("QR Code not found in response");
+          }
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    }
   };
 
   const flattenedOrderDetails = orderDetails.flat();
@@ -73,14 +107,24 @@ export default function Payment({ route, navigation }: any) {
     } catch (error) {
       console.error("Erro ao registrar pedido: ", error);
     }
-    async function delCart(ids: string[]) {
-      if (!user) return;
-      console.log("del: ", ids);
-      for (const id of ids) {
-        const taskDocRef = doc(database, "cart", user, "data", id);
-        await deleteDoc(taskDocRef);
-      }
+  };
+
+  const delCart = async (ids: string[]) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return;
+    console.log("del: ", ids);
+    for (const id of ids) {
+      const taskDocRef = doc(database, "cart", userId, "data", id);
+      await deleteDoc(taskDocRef);
     }
+  };
+
+  const copyToClipboard = () => {
+    Clipboard.setString(qrCode);
+    Alert.alert(
+      "Copied to Clipboard",
+      "The QR Code has been copied to your clipboard."
+    );
   };
 
   return (
@@ -106,17 +150,17 @@ export default function Payment({ route, navigation }: any) {
             onPress={() => handlePayment("Vale alimentação")}
           />
 
-          {payment != "pix" ? (
+          {selectedPayment !== "pix" ? (
             <Button
               title="Pix"
               textColor={colors.white}
               bgcolor={colors.laranja[100]}
-              onPress={() => setPayment("pix")}
+              onPress={() => handlePayment("pix")}
             />
           ) : (
             <View>
               <TouchableOpacity
-                onPress={() => setPayment("")}
+                onPress={() => handlePayment("")}
                 activeOpacity={0.7}
               >
                 <View className="bg-laranja-100 h-14 w-full justify-center items-center rounded-t-lg">
@@ -124,8 +168,26 @@ export default function Payment({ route, navigation }: any) {
                 </View>
               </TouchableOpacity>
 
-              <View className="bg-slate-50 shadow shadow-black">
-                <AntDesign name="qrcode" size={350} />
+              <View className="bg-slate-50 shadow shadow-black justify-center items-center px-4 py-8">
+                {qrCode ? (
+                  <>
+                    <QRCode value={qrCode} size={340} />
+                    <View className="bg-laranja-100 w-full rounded-b-md">
+                      <TouchableOpacity
+                        onPress={copyToClipboard}
+                        activeOpacity={0.7}
+                      >
+                        <View className="h-14 w-full justify-center items-center">
+                          <Text className="font-medium text-white">
+                            Clique aqui para copiar seu QRCode
+                          </Text>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                ) : (
+                  <Text>Nenhum QRCode gerado</Text>
+                )}
               </View>
             </View>
           )}
