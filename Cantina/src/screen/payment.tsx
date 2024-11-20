@@ -121,10 +121,7 @@ export default function Payment({ route, navigation }: any) {
 
   const copyToClipboard = () => {
     Clipboard.setString(qrCode);
-    Alert.alert(
-      "Copied to Clipboard",
-      "The QR Code has been copied to your clipboard."
-    );
+    Alert.alert("Copiado", "O QR Code foi copiado para sua área de trabalho");
   };
 
   return (
@@ -171,7 +168,9 @@ export default function Payment({ route, navigation }: any) {
               <View className="bg-slate-50 shadow shadow-black justify-center items-center px-4 py-8">
                 {qrCode ? (
                   <>
-                    <QRCode value={qrCode} size={340} />
+                    <View className="w-full">
+                      <QRCode value={qrCode} size={314} />
+                    </View>
                     <View className="bg-laranja-100 w-full rounded-b-md">
                       <TouchableOpacity
                         onPress={copyToClipboard}

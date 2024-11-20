@@ -18,7 +18,7 @@ interface OrdersList {
   paymentMethod: string;
   total: string;
   observation: string;
-  user: string;
+  user: any[];
   userName: string;
   userImage: string;
   status: string;
@@ -43,6 +43,7 @@ export function useOrders() {
   const [detailedFoods, setDetailedFoods] = useState<any[]>([]);
   const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<string | null>(null);
+  console.log(ordersList);
 
   const updateOrderStatus = async (orderId: string) => {
     setLoading(orderId);
@@ -115,7 +116,9 @@ export function useOrders() {
           );
 
           if (orderDate === today) {
-            const { name, photoURL } = await fetchUserById(orderData.user);
+            const user: any = orderData.user; // Replace 'any' with the correct type if known
+            const userId = (user as { id: string }).id;
+            const { name, photoURL } = await fetchUserById(userId);
             list.push({
               ...orderData,
               id: doc.id,

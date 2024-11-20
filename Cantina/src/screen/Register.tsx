@@ -5,6 +5,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
 import { Input } from "../components/input";
 import { Button } from "../components/button";
@@ -24,6 +25,7 @@ export default function Register({ navigation }: any) {
   const [password, setPassword] = useState("");
   const [name, setName] = useState<string>("");
   const [surname, setSurname] = useState<string>("");
+  const [cpf, setCpf] = useState<string>(""); // Estado para CPF
   const [isLoading, setIsLoading] = useState(false);
   const [image, setImage] = useState<string>("");
   const [progress, setProgress] = useState(0);
@@ -68,6 +70,26 @@ export default function Register({ navigation }: any) {
     );
   };
 
+  const validateCPF = (cpf: string) => {
+    cpf = cpf.replace(/[^\d]+/g, "");
+    if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+    let sum = 0;
+    for (let i = 0; i < 9; i++) {
+      sum += parseInt(cpf.charAt(i)) * (10 - i);
+    }
+    let result = (sum * 10) % 11;
+    if (result === 10 || result === 11) result = 0;
+    if (result !== parseInt(cpf.charAt(9))) return false;
+
+    sum = 0;
+    for (let i = 0; i < 10; i++) {
+      sum += parseInt(cpf.charAt(i)) * (11 - i);
+    }
+    result = (sum * 10) % 11;
+    if (result === 10 || result === 11) result = 0;
+    return result === parseInt(cpf.charAt(10));
+  };
+
   const newUser = async () => {
     try {
       if (
@@ -75,10 +97,16 @@ export default function Register({ navigation }: any) {
         !surname.trim() ||
         !email.trim() ||
         !password.trim() ||
-        !image.trim()
+        !image.trim() ||
+        !cpf.trim()
       ) {
         return Alert.alert("Inscrição", "Preencha todos os campos!");
       }
+
+      if (!validateCPF(cpf)) {
+        return Alert.alert("Inscrição", "CPF inválido!");
+      }
+
       setIsLoading(true);
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -94,9 +122,10 @@ export default function Register({ navigation }: any) {
       await setDoc(userCollection, {
         name: name,
         surname: surname,
+        cpf: cpf,
         photoURL: image,
         email: email,
-        registrationDate: new Date().toISOString(), // Armazenando a data de registro
+        registrationDate: new Date().toISOString(),
       });
 
       console.log("User registered:", userCredential.user);
@@ -110,48 +139,56 @@ export default function Register({ navigation }: any) {
   };
 
   return (
-    <KeyboardAvoidingView
-      className="bg-laranja-100 flex-1 p-8 items-center justify-center"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View className="gap-4 items-center">
-        <Text className="text-5xl font-bold text-white uppercase">
-          REGISTRE-SE
-        </Text>
+    <View className="bg-laranja-100 flex-1 p-8 items-center  justify-center">
+      <KeyboardAvoidingView
+        className="items-center justify-center"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View className="gap-4 items-center">
+          <Text className="text-5xl font-bold text-white uppercase">
+            REGISTRE-SE
+          </Text>
 
-        <Input>
-          <Input.Field placeholder="Nome" value={name} onChangeText={setName} />
-        </Input>
-        <Input>
-          <Input.Field
-            placeholder="Sobrenome"
-            value={surname}
-            onChangeText={setSurname}
-          />
-        </Input>
-        <Input>
-          <Input.Field
-            placeholder="E-Mail"
-            value={email}
-            onChangeText={setEmail}
-          />
-        </Input>
-        <Input>
-          <Input.Field
-            placeholder="Senha"
-            value={password}
-            onChangeText={setPassword}
-          />
-        </Input>
+          <Input>
+            <Input.Field
+              placeholder="Nome"
+              value={name}
+              onChangeText={setName}
+            />
+          </Input>
+          <Input>
+            <Input.Field
+              placeholder="Sobrenome"
+              value={surname}
+              onChangeText={setSurname}
+            />
+          </Input>
+          <Input>
+            <Input.Field
+              placeholder="E-Mail"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </Input>
+          <Input>
+            <Input.Field
+              placeholder="Senha"
+              value={password}
+              onChangeText={setPassword}
+            />
+          </Input>
+          <Input>
+            <Input.Field placeholder="CPF" value={cpf} onChangeText={setCpf} />
+          </Input>
 
-        <Button
-          bgcolor={colors.white}
-          textColor={colors.laranja[100]}
-          title="Insira sua foto de retrato"
-          onPress={pickImage}
-        />
-      </View>
-
+          <Button
+            bgcolor={colors.white}
+            textColor={colors.laranja[100]}
+            title="Insira sua foto de retrato"
+            onPress={pickImage}
+          />
+        </View>
+      </KeyboardAvoidingView>
       <View className="w-11/12 mt-8">
         <Button
           title="Registrar"
@@ -166,6 +203,6 @@ export default function Register({ navigation }: any) {
           <Text className="text-white font-medium"> Entrar Agora</Text>
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }

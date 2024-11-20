@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { Button } from "./buttonFood";
 import { Trash2 } from "lucide-react";
 import BasicModal from "../modals/modalUpdateFood";
+import { updateDoc } from "firebase/firestore";
 
 interface Products {
   id: string;
@@ -28,6 +29,11 @@ type Props = {
 
 export default function CardProduct(type: Props) {
   const [Products, setProducts] = useState<Products[]>([]);
+
+  function updateProduct({ id, updatedProduct }: any) {
+    const productDocRef = doc(database, "products", id);
+    return updateDoc(productDocRef, updatedProduct);
+  }
 
   useEffect(() => {
     const productCollection = query(
@@ -81,11 +87,13 @@ export default function CardProduct(type: Props) {
                 onClick={() => deleteProduct(product.id)}
               />
               <BasicModal
+                id={product.id}
                 name={product.name}
                 description={product.description}
                 genre={product.genre}
                 value={product.value}
                 imgURL={product.imgURL}
+                onUpdate={updateProduct}
               />
             </div>
           </div>

@@ -7,6 +7,8 @@ import Modal from "@mui/material/Modal";
 import { Button } from "../components/buttonFood";
 import { Pencil } from "lucide-react";
 import { Input } from "../components/input";
+import { doc, updateDoc } from "firebase/firestore";
+import { database } from "../config/firebaseconfig";
 
 const style = {
   position: "absolute" as "absolute",
@@ -30,26 +32,54 @@ interface Foods {
 }
 
 export default function BasicModal({
+  id,
   name,
   description,
   value,
   genre,
   imgURL,
-}: Foods) {
+  onUpdate,
+}: Foods & {
+  id: string;
+  onUpdate: (id: string, updatedProduct: Partial<Foods>) => void;
+}) {
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
   const [nameEdit, setNameEdit] = useState(name);
-  const [valueEdit, setValueEdit] = useState(value);
   const [descriptionEdit, setDescriptionEdit] = useState(description);
-  const [genreEdit, setGenreEdit] = useState<string>(genre);
+  const [valueEdit, setValueEdit] = useState(value);
+  const [genreEdit, setGenreEdit] = useState(genre);
   const [imgURLEdit, setImgURLEdit] = useState(imgURL);
   const [progress, setProgress] = useState(0);
 
-  const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) =>
-    setGenreEdit(e.target.value);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
+  function updateProduct(
+    id: string,
+    updatedProduct: Partial<Foods>
+  ): Promise<void> {
+    const productDocRef = doc(database, "products", id);
+    return updateDoc(productDocRef, updatedProduct);
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const updatedProduct = {
+      name: nameEdit,
+      description: descriptionEdit,
+      value: valueEdit,
+      genre: genreEdit,
+      imgURL: imgURLEdit,
+    };
+
+    updateProduct(id, updatedProduct)
+      .then(() => {
+        console.log("Update successful");
+      })
+      .catch((error) => {
+        console.error("Error updating document: ", error);
+      });
+  };
   return (
     <div>
       <Button button={false} children={<Pencil />} onClick={handleOpen} />
@@ -62,7 +92,7 @@ export default function BasicModal({
       >
         <Box sx={style}>
           <div className="flex justify-around">
-            <form className="w-1/2 gap-3 grid">
+            <form className="w-1/2 gap-3 grid" onSubmit={handleSubmit}>
               <h1 className="text-yellow font-bold text-xl uppercase text-center mb-4">
                 Editar produto
               </h1>
@@ -119,6 +149,7 @@ export default function BasicModal({
                 GRAVAR
               </button>
             </form>
+
             <div className="items-center justify-center flex-1 max-h-80 max-w-80 rounded-lg border-4 border-yellow">
               {imgURL && (
                 <img
