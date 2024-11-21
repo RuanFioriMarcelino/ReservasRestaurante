@@ -49,9 +49,10 @@ export default function ListOrders() {
   // Função para buscar os pedidos
   const fetchOrders = () => {
     const user = auth.currentUser?.uid;
+    console.log(user, "teste");
     const q = query(
       collection(database, "orders"),
-      where("user", "==", `${user}`)
+      where("userID", "==", `${user}`)
     );
 
     // Usando onSnapshot() para escutar mudanças em tempo real

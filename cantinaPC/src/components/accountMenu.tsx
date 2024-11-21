@@ -11,6 +11,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Logout from "@mui/icons-material/Logout";
 import { getAuth, signOut } from "firebase/auth";
 import UserProfile from "../hook/getUser";
+import useUserProfile from "../hook/getUser";
 
 export default function AccountMenu() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -39,13 +40,15 @@ export default function AccountMenu() {
       });
   }
 
-  const user = UserProfile()?.toString();
+  const { userName, isLoading } = useUserProfile();
 
   return (
     <React.Fragment>
       <Box sx={{ display: "flex", alignItems: "center", textAlign: "center" }}>
         <Typography sx={{ minWidth: 100, display: "flex", gap: 1 }}>
-          Olá {user || "Convidado"}
+          {isLoading
+            ? "Carregando..."
+            : `Olá ${userName}` || "Usuário não encontrado"}
         </Typography>
         <Tooltip title="Account settings">
           <IconButton
@@ -57,7 +60,7 @@ export default function AccountMenu() {
             aria-expanded={open ? "true" : undefined}
           >
             <Avatar sx={{ width: 32, height: 32 }}>
-              {user ? user.substr(0, 1) : "?"}
+              {userName ? userName.substr(0, 1) : "?"}
             </Avatar>
           </IconButton>
         </Tooltip>
@@ -71,8 +74,10 @@ export default function AccountMenu() {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose}>
-          <Avatar /> {user || "Convidado"}
+        <MenuItem onClick={handleClose} className="w-40 gap-2">
+          <Avatar />
+
+          {isLoading ? "Carregando..." : userName || "Usuário não encontrado"}
         </MenuItem>
         <Divider />
         <button className="flex-1 w-full" onClick={logout}>

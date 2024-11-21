@@ -80,12 +80,13 @@ export default function Payment({ route, navigation }: any) {
 
   const cadOrder = async () => {
     try {
-      if (!user) return;
+      const userID = auth.currentUser?.uid;
+      if (!userID) return;
 
       const orderCollectionRef = collection(database, "orders");
       await addDoc(orderCollectionRef, {
         addedAt: new Date(),
-        user,
+        userID,
         orderDetails: flattenedOrderDetails,
         total,
         paymentMethod: selectedPayment,

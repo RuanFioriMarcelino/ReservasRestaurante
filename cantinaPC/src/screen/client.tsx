@@ -38,7 +38,7 @@ export default function Client() {
       {user.map((item) => (
         <div
           key={item.id}
-          className="flex bg-white rounded-lg shadow-sm shadow-neutral-500"
+          className="flex bg-white rounded-lg shadow-sm shadow-neutral-500 h-min"
         >
           <div className="bg-gray-400 rounded-lg w-28 h-28">
             <img

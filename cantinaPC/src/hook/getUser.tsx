@@ -1,45 +1,41 @@
 import { useEffect, useState } from "react";
-import { getAuth, onAuthStateChanged, updateProfile } from "firebase/auth";
+import { doc, onSnapshot } from "firebase/firestore";
+import { auth, database } from "../config/firebaseconfig";
 
-const UserProfile = () => {
+const useUserProfile = () => {
   const [userName, setUserName] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const auth = getAuth();
-
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
-        if (!user.displayName) {
-          updateProfile(user, {
-            displayName: userName,
-          })
-            .then(() => {
-              console.log("Nome do usuário atualizado com sucesso");
-              setUserName(user.displayName);
-            })
-            .catch((error) => {
-              console.error("Erro ao atualizar o nome do usuário:", error);
-            });
-        } else {
-          setUserName(user.displayName);
-        }
+        const userID = user.uid;
 
-        user.providerData.forEach((profile) => {
-          /*     console.log("Sign-in provider: " + profile.providerId);
-          console.log("Provider-specific UID: " + profile.uid);
-          console.log("Name: " + profile.displayName);
-          console.log("Email: " + profile.email); */
-          setUserName(profile.displayName);
+        const userDoc = doc(database, "user", userID);
+
+        const unsubscribeFirestore = onSnapshot(userDoc, (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            const userData = docSnapshot.data();
+            setUserName(userData.name);
+          } else {
+            console.log("Usuário não encontrado");
+            setUserName(null);
+          }
+          setIsLoading(false);
         });
+
+        return () => unsubscribeFirestore();
       } else {
-        console.log("Nenhum usuário logado");
+        console.log("Usuário não está autenticado");
         setUserName(null);
+        setIsLoading(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, []);
-  return userName;
+
+  return { userName, isLoading };
 };
 
-export default UserProfile;
+export default useUserProfile;

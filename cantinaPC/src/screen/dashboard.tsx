@@ -1,10 +1,10 @@
 import Card from "../components/card";
 import Icon1 from "../assets/IconOrder.png";
 import Icon2 from "../assets/iconDelivered.png";
-import Icon3 from "../assets//IconOrderCancel.png";
+import Icon3 from "../assets/IconOrderCancel.png";
 import Icon4 from "../assets/IconOrderReceita.png";
 import GetTotaValue from "../hook/getTotalValue";
-import UserProfile from "../hook/getUser";
+import useUserProfile from "../hook/getUser"; // Use o hook corretamente
 import useFirestoreCollectionForToday from "../hook/getOrder";
 
 export function Dashboard() {
@@ -14,9 +14,9 @@ export function Dashboard() {
     "Entregue"
   ).length;
 
-  const totalValue = GetTotaValue();
+  const { userName, isLoading } = useUserProfile();
 
-  const a = 0;
+  const totalValue = GetTotaValue();
 
   return (
     <div>
@@ -24,7 +24,7 @@ export function Dashboard() {
       <p className="text-gray-400 flex">
         Olá,
         <span className="ml-1 ">
-          <UserProfile />
+          {isLoading ? "Carregando..." : userName || "Usuário não encontrado"}
         </span>
         . Bem Vindo ao Jô Pães Dashboard!
       </p>
@@ -35,7 +35,7 @@ export function Dashboard() {
         <Card value={`${pedidosEntreguesHoje}`} title="Total entregue">
           {<img src={Icon2} width="70px" height="70px" />}
         </Card>
-        <Card value={`${a}`} title="Total cancelado">
+        <Card value={`${0}`} title="Total cancelado">
           {<img src={Icon3} width="70px" height="70px" />}
         </Card>
         <Card value={"R$ " + totalValue} title="Receita total">
