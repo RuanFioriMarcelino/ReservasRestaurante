@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 interface Orders {
   id: string;
   total: number;
-  addedAt: any; // Assuming this is a Firestore Timestamp
+  addedAt: any;
 }
 
 export default function GetTotalValue() {

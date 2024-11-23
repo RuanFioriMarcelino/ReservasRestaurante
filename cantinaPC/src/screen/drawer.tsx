@@ -27,7 +27,7 @@ export default function Drawer() {
         <h1 className="text-yellow text-5xl  font-bold mb-2">Jô Pães</h1>
         <p className="text-black uppercase ">Doces e salgados</p>
       </div>
-      <div className="grid gap-10  pr-2 h-full py-20 border-r-[1px] border-gray-400 ">
+      <div className="grid gap-8  pr-2 h-full py-20 border-r-[1px] border-gray-400 ">
         <Button
           title="Dashboard"
           isSelected={selectedButton === 1}
@@ -71,10 +71,10 @@ export default function Drawer() {
         </Button>
 
         <Button
-          title="Carteira"
+          title="Mensagens"
           isSelected={selectedButton === 8}
           onClick={() => sendRoute(8)}
-          to="wallet"
+          to="menssenger"
         >
           <Wallet size={18} />
         </Button>

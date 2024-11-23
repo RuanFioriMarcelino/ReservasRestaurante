@@ -1,12 +1,12 @@
 import { StrictMode, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles/index.css";
-
+import "./styles/loader.css";
 import { RouterApp } from "./routes";
 import { RouterProvider } from "react-router-dom";
 import { RouteAuth } from "./routes/authRoute";
 import { auth } from "./config/firebaseconfig";
-import { onAuthStateChanged } from "firebase/auth"; // Importando a função para monitorar o estado de autenticação
+import { onAuthStateChanged } from "firebase/auth";
 import { AuthProvider } from "./context/authContext";
 
 function App() {
@@ -27,7 +27,11 @@ function App() {
   }, []);
 
   if (isAuthenticated === null) {
-    return <div>Carregando...</div>;
+    return (
+      <div className=" justify-center items-center flex h-full">
+        <div className="loader" />
+      </div>
+    );
   }
 
   return (

@@ -20,13 +20,11 @@ function useFirestoreCollectionForToday<
 
       querySnapshot.forEach((doc) => {
         const docData = doc.data() as T;
-        const docDate = docData.addedAt.toDate(); // Convert Firestore Timestamp to Date
+        const docDate = docData.addedAt.toDate();
         const docDateInBrasilia = toZonedTime(docDate, timeZone);
         const docDateString = format(docDateInBrasilia, "yyyy-MM-dd");
 
-        // Verifica se a data corresponde ao dia atual
         if (docDateString === todayString) {
-          // Verifica o status caso o filtro seja fornecido
           if (!statusFilter || docData.status === statusFilter) {
             items.push({ ...docData, id: doc.id });
           }

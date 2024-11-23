@@ -125,18 +125,6 @@ export default function ListOrders() {
     setDetailedFoods(matchedFoods);
   }, [ordersList, foods]);
 
-  const formatDateTime = (timestamp: any) => {
-    const date = timestamp.toDate();
-    return date.toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-  };
-
   return (
     <SafeAreaView className="flex-1">
       <AvatarBar />

@@ -18,7 +18,7 @@ function Input({ icon, children }: InputProps) {
 function Field({ ...rest }: any) {
   return (
     <input
-      className="flex-1  outline-none text-black font-regular h-full rounded-sm "
+      className="flex-1 w-full outline-none text-black font-regular h-full rounded-sm "
       placeholder={colors.white}
       {...rest}
     />

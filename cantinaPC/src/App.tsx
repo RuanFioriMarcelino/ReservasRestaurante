@@ -5,8 +5,8 @@ import NavBar from "./components/nav";
 function App() {
   return (
     <>
-      <div className="bg-stone-50  h-screen w-screen ">
-        <div className=" border-orange-300 flex">
+      <div className="bg-stone-50  h-screen w-full ">
+        <div className="border-orange-300 flex ">
           <Drawer />
           <div className="w-full py-6 px-4 ">
             <NavBar />

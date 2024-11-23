@@ -18,7 +18,7 @@ interface OrdersList {
   paymentMethod: string;
   total: string;
   observation: string;
-  user: any[];
+  userID: string;
   userName: string;
   userImage: string;
   status: string;
@@ -43,7 +43,6 @@ export function useOrders() {
   const [detailedFoods, setDetailedFoods] = useState<any[]>([]);
   const [feedbacks, setFeedbacks] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<string | null>(null);
-  console.log(ordersList);
 
   const updateOrderStatus = async (orderId: string, status: string) => {
     setLoading(orderId);
@@ -51,8 +50,11 @@ export function useOrders() {
 
     const orderRef = doc(database, "orders", orderId);
     try {
-      await updateDoc(orderRef, { status: status });
+      await updateDoc(orderRef, {
+        status: status,
+      });
 
+      // Atualize o estado local ordersList
       setOrdersList((prevOrders) =>
         prevOrders.map((order) =>
           order.id === orderId ? { ...order, status: status } : order
@@ -81,17 +83,23 @@ export function useOrders() {
   const fetchUserById = async (
     userId: string
   ): Promise<{ name: string; photoURL: string }> => {
+    console.log("Fetching user with ID:", userId);
+    if (!userId) {
+      throw new Error("User ID is undefined");
+    }
     try {
       const userRef = doc(database, "user", userId);
       const userDoc = await getDoc(userRef);
-
+      console.log(userDoc, "usuario");
       if (userDoc.exists()) {
         const userData = userDoc.data();
+
         return {
           name: userData.name,
           photoURL: userData.photoURL || "",
         };
       }
+
       return { name: "Usuário desconhecido", photoURL: "" };
     } catch (error) {
       console.error("Erro ao buscar usuário: ", error);
@@ -100,7 +108,7 @@ export function useOrders() {
   };
 
   useEffect(() => {
-    const fetchOrders = () => {
+    const fetchOrders = async () => {
       const ordersCollection = collection(database, "orders");
       const today = formatInTimeZone(
         new Date(),
@@ -121,15 +129,18 @@ export function useOrders() {
           );
 
           if (orderDate === today) {
-            const user: any = orderData.user; // Replace 'any' with the correct type if known
-            const userId = (user as { id: string }).id;
-            const { name, photoURL } = await fetchUserById(userId);
-            list.push({
-              ...orderData,
-              id: doc.id,
-              userName: name,
-              userImage: photoURL,
-            });
+            console.log(orderData.userID, "TEsteeeeeeeeee");
+            try {
+              const { name, photoURL } = await fetchUserById(orderData.userID);
+              list.push({
+                ...orderData,
+                id: doc.id,
+                userName: name,
+                userImage: photoURL,
+              });
+            } catch (error) {
+              console.error(`Failed to fetch user for order ${doc.id}:`, error);
+            }
           }
         });
 

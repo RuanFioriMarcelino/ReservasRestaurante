@@ -9,10 +9,10 @@ type Props = {
 
 export default function Card({ value, title, children }: Props) {
   return (
-    <div className="bg-white gap-6 flex items-center justify-start py-4 px-9 rounded-lg shadow shadow-black/20 cursor-pointer">
+    <div className="bg-white gap-6 flex items-center justify-around px-4 py-4 rounded-lg shadow shadow-black/20 cursor-pointer w-full">
       <div className="">{children}</div>
 
-      <span>
+      <span className="flex-col">
         <p className="text-3xl font-bold text-slate-700">{value}</p>
         <p className="w-max">{title}</p>
         <span className="flex items-center justify-center gap-2">

@@ -169,8 +169,8 @@ export default function Payment({ route, navigation }: any) {
               <View className="bg-slate-50 shadow shadow-black justify-center items-center px-4 py-8">
                 {qrCode ? (
                   <>
-                    <View className="w-full">
-                      <QRCode value={qrCode} size={314} />
+                    <View className="w-full items-center">
+                      <QRCode value={qrCode} size={339} />
                     </View>
                     <View className="bg-laranja-100 w-full rounded-b-md">
                       <TouchableOpacity

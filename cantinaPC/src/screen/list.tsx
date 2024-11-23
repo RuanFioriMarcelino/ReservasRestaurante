@@ -1,8 +1,9 @@
 import { useOrders } from "../hook/getOrderList";
 
 export function List() {
-  const { ordersList, detailedFoods, feedbacks, updateOrderStatus, loading } =
-    useOrders();
+  const { ordersList, detailedFoods, updateOrderStatus, loading } = useOrders();
+
+  console.log(ordersList);
 
   return (
     <div className="h-full flex flex-row w-full gap-4">
