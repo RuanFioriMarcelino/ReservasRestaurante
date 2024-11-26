@@ -6,7 +6,9 @@ import { useGetUser } from "../components/getUser"; // Função que retorna o us
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigation"; // Importe o tipo de navegação
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"; // Importa o tipo de navegação
+import { signOut } from "firebase/auth"; // Importe o método de logout
 import { Loading } from "./loading";
+import { auth } from "../config/firebaseconfig";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Home">;
 
@@ -14,6 +16,15 @@ export default function AvatarBar() {
   const user = useGetUser(); // Obtém o usuário autenticado
   const navigation = useNavigation<NavigationProp>(); // Agora o navigation está tipado
   const route = useRoute();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Faz o logout do Firebase
+      navigation.navigate("Login"); // Redireciona para a tela de Login
+    } catch (error) {
+      console.error("Erro ao desconectar:", error);
+    }
+  };
 
   if (!user) {
     return (
@@ -44,6 +55,10 @@ export default function AvatarBar() {
             Olá, {user.name || "Usuário"}
           </Text>
         </View>
+
+        <TouchableOpacity onPress={handleLogout}>
+          <MaterialIcons name="exit-to-app" size={20} color={colors.white} />
+        </TouchableOpacity>
 
         {/* Verifica se a rota não é 'Notification' para exibir o ícone de notificações */}
         {route.name !== "Notification" && (

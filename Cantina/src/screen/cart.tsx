@@ -28,6 +28,7 @@ import { Button } from "../components/button";
 import { Loading } from "../components/loading";
 import SkeletonLoader from "../components/skeletonLoader";
 import ModalOverlay from "../components/modal";
+import * as Animatable from 'react-native-animatable';
 
 interface ProductsCart {
   id: string;
@@ -175,6 +176,8 @@ export default function Cart({ navigation }: any) {
       return;
     }
 
+  
+
     const pickupTime = new Date(`2024-11-11T${selectedPickupTime}:00`);
     const start = new Date("2024-11-11T11:30:00");
     const end = new Date("2024-11-11T13:00:00");
@@ -189,6 +192,7 @@ export default function Cart({ navigation }: any) {
         total: sum,
         pickupTime: selectedPickupTime,
       });
+      setSelectedPickupTime("")
     } else {
       Alert.alert(
         "Horário incorreto!",
@@ -330,7 +334,7 @@ export default function Cart({ navigation }: any) {
         </ScrollView>
 
         {productsCart.length === 0 ? null : (
-          <View className="p-6 bg-slate-50 shadow-2xl shadow-black rounded-t-3xl gap-2">
+          <Animatable.View animation="slideInUp" className="p-6 bg-slate-50 shadow-2xl shadow-black rounded-t-3xl gap-2">
             <View>
               <Text>Total</Text>
               <Text className="text-laranja-100 font-bold text-2xl">
@@ -353,7 +357,7 @@ export default function Cart({ navigation }: any) {
               textColor={colors.white}
               onPress={handleFinalizeOrder}
             />
-          </View>
+          </Animatable.View>
         )}
       </SafeAreaView>
 

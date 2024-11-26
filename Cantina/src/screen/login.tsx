@@ -8,10 +8,11 @@ import {
 } from "react-native";
 import { Input } from "../components/input";
 import { auth, onAuthStateChanged } from "../config/firebaseconfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 
 import { Button } from "../components/button";
 import { colors } from "../styles/colors";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 export default function Login({ navigation }: any) {
   const [email, setEmail] = useState("");
@@ -43,13 +44,31 @@ export default function Login({ navigation }: any) {
     return unsubscribe;
   }, []);
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert("Por favor, insira seu e-mail para redefinir a senha.");
+      return;
+    }
+  
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("E-mail de redefinição de senha enviado! Verifique sua caixa de entrada.");
+    } catch (error) {
+      console.error("Erro ao enviar e-mail de redefinição de senha:", error);
+      alert("Erro ao tentar redefinir a senha. Verifique o e-mail inserido.");
+    }
+  };
+  
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="bg-laranja-100 flex-1 p-8 items-center justify-center"
     >
       <View className="items-center w-full gap-4">
-        <Text className="text-5xl font-bold text-white uppercase">Entrar</Text>
+        {/* <Text className="text-5xl font-bold text-white uppercase">Entrar</Text> */}
+        <FontAwesome6 name="user-circle" size={60} color={colors.white}/>
+        <Text className="text-3xl font-bold text-white uppercase">Bem Vindo</Text>
         <Input>
           <Input.Field
             placeholder="Email"
@@ -68,11 +87,11 @@ export default function Login({ navigation }: any) {
           />
         </Input>
         <View className="w-full items-start">
-          <TouchableOpacity activeOpacity={0.7}>
-            <Text className="text-white font-bold text-center  underline">
-              Esqueci minha senha
-            </Text>
-          </TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.7} onPress={handleForgotPassword}>
+  <Text className="text-white font-bold text-center underline">
+    Esqueci minha senha
+  </Text>
+</TouchableOpacity>
         </View>
 
         {error && (

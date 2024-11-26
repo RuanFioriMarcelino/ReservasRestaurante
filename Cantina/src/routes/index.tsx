@@ -2,7 +2,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons, FontAwesome5 } from "@expo/vector-icons";
 import { colors } from "../styles/colors";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth"; // Importa a função para monitorar mudanças de autenticação
 
@@ -15,7 +15,7 @@ import Payment from "../screen/payment";
 import ListOrders from "../screen/listOrders";
 import { auth } from "../config/firebaseconfig";
 import { SafeAreaView } from "react-native";
-import { ActivityIndicator } from "react-native";
+
 import { Loading } from "../components/loading";
 
 const Stack = createStackNavigator();

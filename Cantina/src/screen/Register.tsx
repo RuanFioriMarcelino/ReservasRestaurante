@@ -175,8 +175,10 @@ export default function Register({ navigation }: any) {
               placeholder="Senha"
               value={password}
               onChangeText={setPassword}
+              secureTextEntry
             />
           </Input>
+    
           <Input>
             <Input.Field placeholder="CPF" value={cpf} onChangeText={setCpf} />
           </Input>

@@ -54,7 +54,7 @@ export function Dashboard() {
             series={[
               {
                 data: productCounts.map((item, index) => ({
-                  id: index, // Usar index ou um identificador único
+                  id: index, 
                   value: item.totalOrdered,
                   label: item.name,
                 })),
@@ -67,7 +67,7 @@ export function Dashboard() {
                 cx: 150,
               },
             ]}
-            width={400}
+            width={480}
             height={250}
           />
         </div>

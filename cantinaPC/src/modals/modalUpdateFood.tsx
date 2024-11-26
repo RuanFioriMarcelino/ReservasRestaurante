@@ -38,7 +38,7 @@ export default function BasicModal({
   value,
   genre,
   imgURL,
-  onUpdate,
+
 }: Foods & {
   id: string;
   onUpdate: (id: string, updatedProduct: Partial<Foods>) => void;
@@ -74,7 +74,8 @@ export default function BasicModal({
 
     updateProduct(id, updatedProduct)
       .then(() => {
-        console.log("Update successful");
+        handleClose()
+        alert("Produto atualizado com sucesso");
       })
       .catch((error) => {
         console.error("Error updating document: ", error);
@@ -123,7 +124,7 @@ export default function BasicModal({
                   }
                 />
               </Input>
-              <Input icon={null}>
+           {/*    <Input icon={null}>
                 <select
                   className="flex-1 cursor-pointer"
                   value={genreEdit}
@@ -135,7 +136,7 @@ export default function BasicModal({
                   <option value="bebida">Bebida</option>
                 </select>
               </Input>
-
+ */}
               <input
                 type="file"
                 accept="image/png, image/jpeg"

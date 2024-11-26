@@ -149,7 +149,7 @@ export default function ModalCreateFood() {
                   }
                 />
               </Input>
-              <Input icon={null}>
+            {/*   <Input icon={null}>
                 <select
                   className="flex-1 cursor-pointer"
                   value={genre}
@@ -162,7 +162,7 @@ export default function ModalCreateFood() {
                   <option value="marmitex">Marmitex</option>
                   <option value="bebida">Bebida</option>
                 </select>
-              </Input>
+              </Input> */}
 
               <input
                 type="file"

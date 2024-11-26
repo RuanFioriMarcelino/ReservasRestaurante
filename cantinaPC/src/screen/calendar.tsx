@@ -53,7 +53,7 @@ export default function Calendar() {
       {products.map((product) => (
         <div
           key={product.id}
-          className="flex bg-white rounded-lg shadow-sm shadow-neutral-500"
+          className="flex bg-white h-28 rounded-lg shadow-sm shadow-neutral-500"
         >
           <img
             src={product.imgURL}

@@ -19,14 +19,14 @@ import {
   where,
 } from "firebase/firestore";
 import { auth, database } from "../config/firebaseconfig";
-import { signOut } from "firebase/auth";
-import AvatarBar from "../components/avatarBar";
 import SkeletonLoaderHome from "../components/skeletonLoaderHome";
 import { colors } from "../styles/colors";
 import ModalOverlay from "../components/modal";
 import { Button } from "../components/button";
 import { Loading } from "../components/loading";
 import { toZonedTime } from "date-fns-tz";
+import * as Animatable from 'react-native-animatable';
+import AvatarBar from "../components/avatarBar";
 
 interface Foods {
   id: string;
@@ -164,38 +164,23 @@ export default function Home(navigation: any) {
     }
   };
 
-  const handleSignOut = () => {
-    signOut(auth)
-      .then(() => {
-        console.log("Usuário deslogado com sucesso!");
-        navigation.navigate("Login");
-      })
-      .catch((error) => {
-        console.error("Erro ao deslogar: ", error);
-      });
-  };
 
   return (
     <SafeAreaView className="flex-1">
-      <AvatarBar />
+      
+      <Animatable.View animation="slideInDown" ><AvatarBar/></Animatable.View>
       <Text className="text-center text-laranja-200 font-bold text-2xl mt-2">
         Cardápio dia {formattedDate}
       </Text>
 
-      <TouchableOpacity
-        onPress={handleSignOut}
-        className="bg-red-500 p-2 rounded-full m-4"
-        style={{ alignSelf: "center" }}
-      >
-        <Text className="text-laranja-100 font-bold">Deslogar</Text>
-      </TouchableOpacity>
+
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           flexDirection: "row",
           flexWrap: "wrap",
-          gap: 10,
+          gap: 12,
           justifyContent: "center",
           paddingBottom: 20,
         }}
@@ -208,7 +193,8 @@ export default function Home(navigation: any) {
               <SkeletonLoaderHome key={index} />
             ))
           : foods.map((food) => (
-              <View
+              <Animatable.View
+              animation="pulse"
                 key={food.id}
                 className="w-[45%] h-52 p-2 justify-end rounded-[25] mt-20 shadow-lg shadow-slate-950 last:mb-10"
                 style={{
@@ -273,7 +259,7 @@ export default function Home(navigation: any) {
                     </View>
                   </View>
                 </View>
-              </View>
+              </Animatable.View>
             ))}
       </ScrollView>
 

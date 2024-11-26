@@ -36,11 +36,11 @@ function useFirestoreWeeklyOrders(
     const startOfLastWeek = startOfWeek(subDays(todayInBrasilia, 7), {
       weekStartsOn: 1,
     });
-    const endOfLastWeek = subDays(startOfLastWeek, -4);
+    const endOfLastWeek = subDays(startOfLastWeek, -5);
 
     const daysOfWeek = eachDayOfInterval({
       start: startOfLastWeek,
-      end: endOfLastWeek,
+      end: subDays(startOfLastWeek, -4), // Limita até sexta-feira
     });
 
     console.log(

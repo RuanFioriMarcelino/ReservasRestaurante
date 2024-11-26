@@ -24,6 +24,7 @@ import {
 } from "../config/firebaseconfig";
 import ModalOverlay from "../components/modal";
 import { useGetUser } from "../components/getUser";
+import { Loading } from "../components/loading";
 
 interface Detail {
   id: string;
@@ -186,7 +187,8 @@ export default function Payment({ route, navigation }: any) {
                     </View>
                   </>
                 ) : (
-                  <Text>Nenhum QRCode gerado</Text>
+                  <View className="bg-gray-300 w-[339px] h-[339px] rounded-lg flex justify-center"><Loading /></View>
+
                 )}
               </View>
             </View>
