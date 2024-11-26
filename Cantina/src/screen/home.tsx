@@ -164,11 +164,13 @@ export default function Home(navigation: any) {
     }
   };
 
+  
+
 
   return (
     <SafeAreaView className="flex-1">
       
-      <Animatable.View animation="slideInDown" ><AvatarBar/></Animatable.View>
+      <Animatable.View delay={500} animation="slideInDown" ><AvatarBar/></Animatable.View>
       <Text className="text-center text-laranja-200 font-bold text-2xl mt-2">
         Cardápio dia {formattedDate}
       </Text>

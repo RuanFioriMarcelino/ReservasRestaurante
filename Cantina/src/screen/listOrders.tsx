@@ -1,17 +1,9 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  SafeAreaView,
-  ScrollView,
-  RefreshControl,
-} from "react-native";
+import { View, Text, SafeAreaView, ScrollView, RefreshControl, Image } from "react-native";
 import React, { useEffect, useState } from "react";
 import AvatarBar from "../components/avatarBar";
 import { auth, collection, database } from "../config/firebaseconfig";
 import { query, where, onSnapshot, getDocs } from "firebase/firestore";
-import { colors } from "../styles/colors";
+import SkeletonLoader from "../components/skeletonLoaderOrders"; // Importando o Skeleton
 import { Loading } from "../components/loading";
 
 interface OrdersList {
@@ -42,33 +34,53 @@ export default function ListOrders() {
   const [foods, setFoods] = useState<Foods[]>([]);
   const [detailedFoods, setDetailedFoods] = useState<any[]>([]);
   const [refreshing, setRefreshing] = useState(false);
-  console.log(
-    "Order: ",
-    ordersList.map((item) => item.orderDetails)
-  );
-  // Função para buscar os pedidos
+  const [loading, setLoading] = useState(true); // Novo estado para controlar o carregamento
+
   const fetchOrders = () => {
     const user = auth.currentUser?.uid;
-    console.log(user, "teste");
     const q = query(
       collection(database, "orders"),
       where("userID", "==", `${user}`)
     );
 
-    // Usando onSnapshot() para escutar mudanças em tempo real
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const list: OrdersList[] = [];
       querySnapshot.forEach((doc) => {
-        list.push({ ...doc.data(), id: doc.id } as OrdersList);
+        const data = doc.data();
+        let addedAt: Date;
+        if (data.addedAt?.toDate) {
+          addedAt = data.addedAt.toDate();
+        } else if (typeof data.addedAt === "string") {
+          addedAt = new Date(data.addedAt);
+        } else {
+          addedAt = new Date();
+        }
+
+        const order: OrdersList = {
+          id: doc.id,
+          addedAt: addedAt.toISOString(),
+          orderDetails: data.orderDetails || [],
+          paymentMethod: data.paymentMethod || "Não informado",
+          total: data.total || 0,
+          observation: data.observation || "",
+          status: data.status || "Pendente",
+          pickupTime: data.pickupTime || "Não definido",
+          quantity: data.quantity || 1,
+        };
+
+        list.push(order);
       });
-      setOrdersList(list); // Atualiza a lista de pedidos
+
+      const sortedList = list.sort(
+        (a, b) => new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
+      );
+      setOrdersList(sortedList);
+      setLoading(false); // Definir carregamento como falso quando os dados forem obtidos
     });
 
-    // Retorna a função de desinscrição para limpar quando o componente for desmontado
     return unsubscribe;
   };
 
-  // Refresh quando puxar a tela
   const onRefresh = async () => {
     setRefreshing(true);
     await fetchOrders();
@@ -88,20 +100,15 @@ export default function ListOrders() {
     fetchFoods();
   }, []);
 
-  // Usar useEffect para escutar mudanças nos pedidos
   useEffect(() => {
-    const unsubscribe = fetchOrders(); // Inicia o listener de pedidos
-    return () => unsubscribe(); // Limpa o listener quando o componente é desmontado
+    const unsubscribe = fetchOrders();
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     const orderProductDetails = ordersList.flatMap((order) => {
       if (!Array.isArray(order.orderDetails)) {
-        console.warn(
-          `Order ${
-            order.id
-          } has orderDetails of type ${typeof order.orderDetails}`
-        );
+        console.warn(`Order ${order.id} has orderDetails of type ${typeof order.orderDetails}`);
         return [];
       }
       return order.orderDetails.map((detail) => ({
@@ -136,77 +143,74 @@ export default function ListOrders() {
           gap: 15,
           padding: 10,
         }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {ordersList.map((order) => (
-          <View
-            key={order.id}
-            className="bg-white rounded-lg shadow-md shadow-black p-4 mb-4 "
-          >
-            <Text className="text-black font-bold text-xs">
-              Pedido #{order.id}
-            </Text>
+        {loading ? (
 
-            {detailedFoods
-              .filter((food) => food.orderId === order.id)
-              .map((item) => (
-                <View
-                  key={item.productId}
-                  className="flex-row mt-1 items-center"
-                >
-                  {item.imgURL ? (
-                    <Image
-                      source={{ uri: item.imgURL }}
-                      style={{
-                        width: 80,
-                        height: 80,
-                        borderRadius: 10,
-                      }}
-                      className="bg-gray-400"
-                    />
-                  ) : (
-                    <View className="w-20 h-20 bg-gray-400 justify-center rounded-[10px]">
-                      <Loading />
-                    </View>
-                  )}
-                  <View className="flex-1 ml-4">
-                    <Text className="text-laranja-100 text-base font-bold">
-                      {item.quantity}x - {item.name}
-                    </Text>
-                    <Text className="text-black">
-                      {item.observation || "Sem observações"}
-                    </Text>
-                    <Text className="text-laranja-100">R$ {item.value}</Text>
-                  </View>
-                </View>
-              ))}
-            <View className="w-full border-b my-2 border-gray-300"></View>
-            <Text className="text-black">
-              Horário de Retirada:{" "}
-              <Text className="text-laranja-100">{order.pickupTime}</Text>
-            </Text>
-            <View className="flex flex-row items-center">
-              <Text className="text-black">Método de Pagamento: </Text>
-              <View className="bg-gray-300 rounded-lg px-2">
-                <Text className="font-medium">{order.paymentMethod}</Text>
-              </View>
-            </View>
-            <View className="flex flex-row items-center">
-              <Text className="text-black">Status: </Text>
-              <View className="bg-gray-300 rounded-lg px-2">
-                <Text className="font-medium">{order.status}</Text>
-              </View>
-            </View>
-            <Text className="text-black text-xl">
-              Total:{" "}
-              <Text className="text-laranja-100 font-bold">
-                R$ {order.total}
+          <SkeletonLoader />
+        ) : (
+          ordersList.map((order) => (
+            <View key={order.id} className="bg-white rounded-lg shadow-md shadow-black p-4 mb-4 ">
+              <Text className="text-black font-bold text-xs">
+                Pedido #{order.id}
               </Text>
-            </Text>
-          </View>
-        ))}
+
+              {detailedFoods
+                .filter((food) => food.orderId === order.id)
+                .map((item) => (
+                  <View key={item.productId} className="flex-row mt-1 items-center">
+                    {item.imgURL ? (
+                      <Image
+                        source={{ uri: item.imgURL }}
+                        style={{
+                          width: 80,
+                          height: 80,
+                          borderRadius: 10,
+                        }}
+                        className="bg-gray-400"
+                      />
+                    ) : (
+                      <View className="w-20 h-20 bg-gray-400 justify-center rounded-[10px]">
+                        <Loading />
+                      </View>
+                    )}
+                    <View className="flex-1 ml-4">
+                      <Text className="text-laranja-100 text-base font-bold">
+                        {item.quantity}x - {item.name}
+                      </Text>
+                      <Text className="text-black">
+                        {item.observation || "Sem observações"}
+                      </Text>
+                      <Text className="text-laranja-100">R$ {item.value}</Text>
+                    </View>
+                  </View>
+                ))}
+              <View className="w-full border-b my-2 border-gray-300"/>
+              <Text className="text-black">
+                Horário de Retirada:{" "}
+                <Text className="text-laranja-100">{order.pickupTime}</Text>
+              </Text>
+              <View className="flex flex-row items-center">
+                <Text className="text-black">Método de Pagamento: </Text>
+                <View className="bg-gray-300 rounded-lg px-2">
+                  <Text className="font-medium">{order.paymentMethod}</Text>
+                </View>
+              </View>
+              <View className="flex flex-row items-center">
+                <Text className="text-black">Status: </Text>
+                <View className="bg-gray-300 rounded-lg px-2">
+                  <Text className="font-medium">{order.status}</Text>
+                </View>
+              </View>
+              <Text className="text-black text-xl">
+                Total:{" "}
+                <Text className="text-laranja-100 font-bold">
+                  R$ {order.total}
+                </Text>
+              </Text>
+            </View>
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );

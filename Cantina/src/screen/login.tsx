@@ -67,8 +67,10 @@ export default function Login({ navigation }: any) {
     >
       <View className="items-center w-full gap-4">
         {/* <Text className="text-5xl font-bold text-white uppercase">Entrar</Text> */}
-        <FontAwesome6 name="user-circle" size={60} color={colors.white}/>
-        <Text className="text-3xl font-bold text-white uppercase">Bem Vindo</Text>
+         <FontAwesome6 name="user-circle" size={60} color={colors.white}/> 
+     
+        <Text className="text-3xl font-bold text-white ">CantinaTR</Text>
+       
         <Input>
           <Input.Field
             placeholder="Email"
