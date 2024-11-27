@@ -8,7 +8,10 @@ Criar um aplicativo que permita a realização de reservas de almoço dentro de 
 **Tecnologias Utilizadas:**
 - React Native
 - Firebase
-- Tailwind CSS
+- Node.JS
+    -Frameworks
+      - Tailwind CSS
+      - Express.js
 
 ### Cronograma de Desenvolvimento
 
