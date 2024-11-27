@@ -9,9 +9,11 @@ Criar um aplicativo que permita a realização de reservas de almoço dentro de 
 - React Native
 - Firebase
 - Node.JS
-    -Frameworks
-      - Tailwind CSS
-      - Express.js
+
+**Frameworks utilizados**
+- Tailwind CSS
+- Express.js
+- API de pagamentos Mercado Pago
 
 ### Cronograma de Desenvolvimento
 
